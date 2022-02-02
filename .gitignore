@@ -4,3 +4,5 @@
 *.npy
 *main.py
 *test.py
+*.csv
+*.txt
