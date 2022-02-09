@@ -172,7 +172,7 @@ class eKDS(tf.keras.Model):
 
 
         # Compute z gradients by hand
-        if train_z:
+        if train_z and len(self.shapes) > 1:
             gradients = []
 
             for shape in self.shapes:

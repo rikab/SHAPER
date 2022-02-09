@@ -151,6 +151,37 @@ class Background(Shape):
         return "Background: %.3f GeV" % (self.z.numpy())
 
 
+class N_Particle_Event(Shape):
+
+    def __init__(self, points, z = 1.0, N = 1):
+
+        # N jet parameters
+        self.points = tf.Variable(points,
+                             trainable = True,
+                             dtype = tf.float64)
+
+
+        self.z = tf.Variable(z,
+                             trainable = True,
+                             dtype = tf.float64)
+
+        self.parameters = [self.points]
+        self.N = N
+
+        # Save a list of coordinates to approximate the shape
+        self.t = self.uniform_sample(N)
+
+    def uniform_sample(self, N):
+        return tf.keras.backend.random_uniform(shape=(N,1), dtype=tf.float64)
+
+    def get_points(self):
+        return self.points
+
+    def draw(self, ax):
+        ax.scatter(self.points[:,0], self.points[:,1], color = "purple")
+
+    def __str__(self):
+        return ""
 
 
 class Graph():
