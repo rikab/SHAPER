@@ -26,14 +26,12 @@ from src.plot_utils import plot, make_gif
 @tf.function
 def emd_loss(y_i, y_j, x_ij, R, beta = 1.0):
 
-
-
     theta_ij = tf.reduce_sum(tf.abs(tf.math.pow((y_i[:,None,:] - y_j[None,:,:] ) / R, beta)), axis = 2)
-    return  tf.math.pow(tf.reduce_sum(theta_ij * x_ij), 1.0 / 1.0) 
+    return  tf.math.pow(tf.reduce_sum(theta_ij * x_ij), 1.0 / beta) 
 
 
 # @tf.function
-def emd(y_i, z_i, y_j, z_j, R):
+def emd(y_i, z_i, y_j, z_j, R, beta = 1.0):
 
     # Format events
     ev0 = tf.concat((tf.expand_dims(z_i,1), y_i), axis  = 1)
@@ -43,7 +41,7 @@ def emd(y_i, z_i, y_j, z_j, R):
     # ev0[:,1:] = y_i
     # ev1[:,1:] = y_j
 
-    emd, G = ef.emd.emd(ev0, ev1, R=R, return_flow = True, beta = 1.0, norm = True)
+    emd, G = ef.emd.emd(ev0, ev1, R=R, return_flow = True, beta = beta, norm = True)
     # print(tf.reduce_sum(G[-1,:]))
     return G[:z_i.shape[0], :z_j.shape[0]], emd
 
@@ -124,6 +122,7 @@ class eKDS(tf.keras.Model):
         for shape in self.shapes:
             points.append(shape.get_points())
             zs.append(shape.get_zs())
+
         return tf.concat(points, axis = 0), tf.concat(zs, axis = 0)
 
         if self.resample:
