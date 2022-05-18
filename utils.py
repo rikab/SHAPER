@@ -5,7 +5,7 @@ import shutil
 import os, sys
 
 
-def load_dataset(filename, N, mass_lower = 0, mass_upper = np.inf, eta_cut = 1.3):
+def load_dataset(filename, N, mass_lower = 0, mass_upper = np.inf, eta_cut = 1.3, pt_cut = 300):
 
 
         n = 0
@@ -37,7 +37,7 @@ def load_dataset(filename, N, mass_lower = 0, mass_upper = np.inf, eta_cut = 1.3
             masses.append(mass)
 
             print(mass)
-            if mass_lower < mass < mass_upper and np.abs(yphi_avg[0]) < eta_cut:
+            if mass_lower < mass < mass_upper and np.abs(yphi_avg[0]) < eta_cut and pt > pt_cut:
                 events.append( (x[:,1:3] , zs ) )
                 n += 1
             i += 1

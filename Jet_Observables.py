@@ -358,6 +358,60 @@ class Disk(Observable):
         return "Radius: %.3f, z: %.3f GeV" % (tf.math.abs(self.radius).numpy(), self.z.numpy())
 
 
+class Gaussian(Observable):
+
+    def __init__(self, center, radius, z = 1.0, R = 0.8, beta = 1.0, N = 100) -> None:
+        super().__init__()
+
+       # Circle parameters
+        self.center_initializer = center
+        self.radius_initializer = radius
+        self.z_initializer = z
+
+        self.initialize(None)
+        self.parameters = [self.center, self.radius]
+        self.N = N
+
+        # Save a list of coordinates to approximate the shape
+        self.name = "Gaussian"
+        self.t = self.sample(N)
+        
+    def initialize(self, event):
+        self.center = tf.Variable(self.center_initializer,
+                             trainable = True,
+                             dtype = tf.float64)
+        self.radius = tf.Variable(self.radius_initializer,
+                             trainable = True,
+                             dtype = tf.float64)
+        self.z = tf.Variable(self.z_initializer,
+                             trainable = True,
+                             dtype = tf.float64)
+        self.parameters = [self.center, self.radius]
+
+    def sample(self, N):
+        t = tf.keras.backend.random_normal(shape = (N, 2), dtype = tf.float64)
+        return t
+
+    def get_param_dict(self, loss):
+        dict =  super().get_param_dict(loss)
+        dict["Mean"] = self.center.numpy()
+        dict["Std"] = tf.math.abs(self.radius.numpy())
+        dict["z"] = self.z.numpy()
+        return dict
+
+    def get_points(self):
+
+        return self.center + self.t * self.radius
+
+
+    def draw(self, ax):
+        draw_circle = [pltCircle(self.center, tf.math.abs(self.radius), facecolor = None, edgecolor = "purple", zorder = 20)]
+        p = PatchCollection(draw_circle, color = "purple", alpha = 0.25, zorder = 20)
+        ax.add_collection(p)
+    
+    def __str__(self):
+        return "Std: %.3f, z: %.3f GeV" % (tf.math.abs(self.radius).numpy(), self.z.numpy())
+
 
 
 
