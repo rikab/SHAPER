@@ -17,7 +17,7 @@ from matplotlib.collections import PatchCollection
 
 class Point(Observable):
 
-    def __init__(self, initializer = None, z = 1.0, R = 0.8, beta = 1.0, ):
+    def __init__(self, initializer = None, z = 1.0, R = 0.5, beta = 1.0, ):
         super().__init__()
 
         # N jet parameters
@@ -94,7 +94,7 @@ class Point(Observable):
 
 class NStructure(CustomObservable):
 
-    def __init__(self, structure_class, N, name, initializer = None, z = 1.0, R = 0.8, beta = 1.0, **kwargs):
+    def __init__(self, structure_class, N, name, initializer = None, z = 1.0, R = 0.5, beta = 1.0, **kwargs):
 
         self.shapes = []
         self.N = N
@@ -123,7 +123,7 @@ class NStructure(CustomObservable):
 
 class NSubJettiness(Observable):
 
-    def __init__(self, initializer = None, z = 1.0, N = 1, R = 0.8, beta = 1.0, ):
+    def __init__(self, initializer = None, z = 1.0, N = 1, R = 0.5, beta = 1.0, ):
         super().__init__()
 
         # N jet parameters
@@ -198,7 +198,7 @@ class NSubJettiness(Observable):
 
 class Thrust(Observable):
 
-    def __init__(self, initializer, z = 1.0, R = 0.8, beta = 1.0):
+    def __init__(self, initializer, z = 1.0, R = 0.5, beta = 1.0):
         super().__init__()
 
 
@@ -244,7 +244,7 @@ class Thrust(Observable):
 
 class Circle(Observable):
 
-    def __init__(self, center, radius, z = 1.0, R = 0.8, beta = 1.0, N = 100) -> None:
+    def __init__(self, center, radius, z = 1.0, R = 0.5, beta = 1.0, N = 100) -> None:
         super().__init__()
 
         # Circle parameters
@@ -303,7 +303,7 @@ class Circle(Observable):
 
 class Disk(Observable):
 
-    def __init__(self, center, radius, z = 1.0, R = 0.8, beta = 1.0, N = 100) -> None:
+    def __init__(self, center, radius, z = 1.0, R = 0.5, beta = 1.0, N = 100) -> None:
         super().__init__()
 
        # Circle parameters
@@ -360,7 +360,7 @@ class Disk(Observable):
 
 class Gaussian(Observable):
 
-    def __init__(self, center, radius, z = 1.0, R = 0.8, beta = 1.0, N = 100) -> None:
+    def __init__(self, center, radius, z = 1.0, R = 0.5, beta = 1.0, N = 100) -> None:
         super().__init__()
 
        # Circle parameters
@@ -568,6 +568,6 @@ def kt_initializer(event, N, R):
     jets = jets[:N]
     initialization = []
     for jet in jets:
-        initialization.append([jet.phi, jet.eta])
+        initialization.append([jet.eta, jet.phi])
     initialization = np.array(initialization).astype(np.float32)
     return initialization
