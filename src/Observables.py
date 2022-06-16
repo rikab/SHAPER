@@ -1,238 +1,184 @@
-# Standard stuff
-from abc import ABC, abstractmethod
-from matplotlib.pyplot import axis
-from matplotlib.patches import Circle as pltCircle
-from matplotlib.patches import Polygon as pltPolygon
-from matplotlib.collections import PatchCollection
+# Standard Imports
 import numpy as np
-import os, sys
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from time import time
 
-from src.shaper import Shaper
-from src.utils.plot_utils import plot, make_gif
+# Jets
+from pyjet import cluster
 
-import tensorflow as tf
+# ML
+import torch
+import torch.nn as nn
 
-
-
-
-
-
+# SHAPER 
+from src.Manifolds import Manifold, Simplex
 
 
+class Observable(nn.Module):
 
-class Observable(ABC):
-
-    def __init__(self) -> None:
+    def __init__(self, param_dict, sampler, beta, R, initializer = None, plotter = None) -> None:
+        
         super().__init__()
-        self.shapes = [self,]
-        self.R = None
-        self.beta = None
+        self.params = nn.ModuleDict(param_dict)
+        self.sampler = sampler
+        self.plotter = plotter
+        self.keywords = []
 
-
-    @abstractmethod
-    # A function to generate a list of points to approximate the shape
-    def sample(self, N):
-        pass
-
-    @abstractmethod
-    # Generate points according to the parameters
-    def get_points(self,):
-        pass
-
-    @abstractmethod    
-    def get_param_dict(self, loss):
-        return {"EMD" : loss}
-
-    def get_zs(self, ):
-        return tf.ones(shape = (self.N,), dtype = tf.float64) * self.z / self.N
-
-    @abstractmethod
-    def draw(self, ax):
-        pass
-
-    @abstractmethod
-    def __str__(self):
-        pass
-
-
-    @abstractmethod
-    def initialize(self):
-        pass
-
-
-    # Calculate Observable on an event (y, z)
-    def calculate(self, event, training_config_dict, gif_filename = None, plot_filename = None):
-
-        y_i, z_i = event
-        filenames = []
-
-        # Set up training
-        self.initialize(event)
-        shaper = Shaper(self.shapes, R = self.R, beta = self.beta) # TODO: Remove shape array
-        epochs = training_config_dict["epochs"]
-        optimizer = training_config_dict["optimizer"]
-        verbose = training_config_dict["verbose"]
-        resample = training_config_dict["resample"]
-        z_schedule = 0.5
-        if "z_schedule" in training_config_dict:
-            z_schedule = training_config_dict["z_schedule"]
-        shaper.compile(optimizer = optimizer)
-
-        l_0 = np.inf
-        x_ij_0 = None
-        params = {}
-        stopping_counter = 0
-
-
-        half_epochs = int(epochs * z_schedule)
-        train_z = False
-
-        # Train
-        epoch = 0
-        for epoch in range(half_epochs):
-
-
-            if resample:
-                for shape in self.shapes:
-                    shape.t = shape.sample(shape.N)
-            l, x_ij, y_j, z_j, _ = shaper.train_step((y_i, z_i), False)
-            if verbose:
-                print("Epoch %d: %.3f, z0 = %.3f" % (epoch, l, self.z))
-
-            if gif_filename is not None:
-
-                rad = self.R
-                fname = gif_filename + f"_{epoch}.png"
-                filenames.append(fname)
-                y_j, z_j = shaper.get_samples()
-                plot(y_i, z_i, y_j, z_j, x_ij, l, rad, self.z,  fname, self.name + " Epoch %d" % epoch, self.shapes)
-
-            # Get best result so far
-            if l < l_0:
-                l_0 = l
-                x_ij_0 = x_ij
-                params = self.get_param_dict(l_0.numpy())
-                stopping_counter = 0
-            else:
-                stopping_counter += 1
-
-            # Halfway through, turn on z training
-            if epoch == half_epochs:
-                train_z = True
-                stopping_counter = 0
-            
-            if "early_stop" in training_config_dict and stopping_counter >= training_config_dict["early_stop"] and not train_z:
-                epoch = half_epochs - 1
-
-            # Early stopping
-            if "early_stop" in training_config_dict and stopping_counter >= training_config_dict["early_stop"]: 
-                break
-
-
-        stopping_counter = 0
-        for epoch in range(half_epochs, epochs):
-
-
-            if resample:
-                for shape in self.shapes:
-                    shape.t = shape.sample(shape.N)
-            l, x_ij, y_j, z_j, _ = shaper.train_step((y_i, z_i), True)
-            if verbose:
-                print("Epoch %d: %.3f, z0 = %.3f" % (epoch, l, self.z))
-
-            if gif_filename is not None:
-
-                rad = self.R
-                fname = gif_filename + f"_{epoch}.png"
-                filenames.append(fname)
-                y_j, z_j = shaper.get_samples()
-                plot(y_i, z_i, y_j, z_j, x_ij, l, rad, self.z,  fname, self.name + " Epoch %d" % epoch, self.shapes)
-
-            # Get best result so far
-            if l < l_0:
-                l_0 = l
-                x_ij_0 = x_ij
-                params = self.get_param_dict(l_0.numpy())
-                stopping_counter = 0
-            else:
-                stopping_counter += 1
-
-            # # Halfway through, turn on z training
-            # if epoch == half_epochs:
-            #     train_z = True
-            #     stopping_counter = 0
-            
-            # if "early_stop" in training_config_dict and stopping_counter >= training_config_dict["early_stop"] and not train_z:
-            #     epoch = half_epochs - 1
-
-            # Early stopping
-            if "early_stop" in training_config_dict and stopping_counter >= training_config_dict["early_stop"]: 
-                break
-
-            epoch += 1
-
-
-        if gif_filename is not None:
-            make_gif(filenames, gif_filename)
-
-        if plot_filename is not None:
-            plot(y_i, z_i, y_j, z_j, x_ij, l, self.R, self.z,  plot_filename, self.name, self.shapes)
-
-
-        return params
-
-
-
-    
-    # # Calculate Observable on an event (y, z)
-    # def __call__(self, *args: Any, **kwds: Any) -> Any:
-    #     return super().__call__(*args, **kwds))
-
-        
-
-class CustomObservable(Observable):
-
-    def __init__(self, shapes, name, ids = None, z = 1.0, R = 0.8, beta = 1.0):
-        
-        self.shapes = shapes
-        self.R = R
         self.beta = beta
-        self.z = shapes[0].z
-        self.name = name
+        self.R = R
 
-        if ids is None:
-            self.ids = np.arange(len(shapes))
-        else: 
-            self.ids = ids
+        if initializer is None:
+            self.initializer = param_dict.copy()
+        else:
+            self.initializer = initializer
 
-    
+        self.freeze_list = {}
+        self.is_trivial = (len(list(self.parameters())) == 0)
+
+
+    # TODO: Implement "Simplify", parser when parameters have same names
+    def __add__(self, observable):
+
+        if isinstance(observable, Observable): 
+
+            new_param_dict = {**self.params, **observable.params}
+            new_param_dict["Joint Weights"] = Simplex(2)
+
+            # TODO: Allocate N better
+            def new_sampler(N, new_param_dict):
+                e1, z1 = self.sampler(N, new_param_dict)
+                e2, z2 = observable.sampler(N, new_param_dict)
+                
+                # Concatenate and reweight
+                e = torch.cat([e1, e2], dim = 0)
+                z = torch.cat([z1 * new_param_dict["Joint Weights"].params[0], z2 * new_param_dict["Joint Weights"].params[1]], dim = 0)
+                return e, z
+
+            return Observable(new_param_dict, new_sampler, beta = self.beta, R = self.R, initializer= self.initializer) 
+
+            # return Manifold(self.parameters + manifold.parameters, self.labels + manifold.labels, [self, manifold])
+        else:
+            raise TypeError("Can only add Observables with other Observables, found %s" % type(observable))
+
+    def sample(self, N):
+        points, zs = self.sampler(N, self.params)
+        return points, zs
+
+    def enforce(self):
+
+        for manifold in self.params:
+            if self.params[manifold].params.requires_grad:
+                self.params[manifold].enforce()
+
+
+    def freeze(self, parameter, value = None):
+
+        if value is not None:
+            self.params[parameter].set(value)
+        self.params[parameter].params.requires_grad = False
+
+        self.freeze_list[parameter] = value
+
+
     def initialize(self, event):
-        for shape in self.shapes:
-            shape.initialize(event)
-        self.z = self.shapes[0].z
 
-    def sample(self):
-        pass
+        # Set default backup value if no initialization scheme exists
+        for param in self.params:
+            self.params[param].set(self.params[param].default_value)
+        
+        # Initialization dictionary
+        if (type(self.initializer) is dict):
+            self.params = nn.ParameterDict(self.initializer.copy())
+        
+        # Default kt-initializer
+        elif self.initializer == "kt":
+
+            # Get the kt-clustering sequence
+            N = self.params["Points"].shape[0]
+            cluster_sequence = kt_initializer(event, self.R)
+            jets = cluster_sequence.exclusive_jets(N)
+
+            if "Points" in self.params.keys():
+
+                
+                # If N is too large, set the initializtion to the points themselves
+                if (N >= event[0].shape[0]):
+                    temp_points = np.zeros(self.params["Points"].shape)
+                    temp_energies = np.zeros((self.params["Points"].shape[0],))
+
+                    temp_points[:event[0].shape[0]] = event[0]
+                    temp_energies[:event[0].shape[0]] = event[1]
+
+                    points = temp_points
+                    energies = temp_energies
+
+                else:
+                    points, energies = exclusive_jets(cluster_sequence, min(N, event[0].shape[0]))
+
+                self.params["Points"].set(points)
+
+                if "Weights" in self.params.keys():
+
+                    self.params["Weights"].set(energies / np.sum(energies))
+
+                    # Freeze points, as in Apollonius
+                    if N >= event[0].shape[0]:
+                        self.freeze("Points")
+
+                # Circle initializer based on clustering history
+                if "Radius" in self.params.keys():
+
+                    if N > 1:
+                        raise NotImplementedError("N > 1 circle initializer not implemented yet.")
+
+                    reclustered = cluster(jets[0].constituents_array(), R = self.R, p = 1)
+
+                    # Make the assumption that the harder jet is the point and the softer one is the radius
+                    p, e = exclusive_jets(reclustered, 2)
+                    r = np.sqrt(np.sum(np.square(p[0] - p[1])))
+
+                    self.params["Radius"].set(torch.ones((1,)) * r)
+                    # self.params["Radius"].set(torch.ones((1,)) * self.R / 2)
+                    self.params["Structure Weights"].set(e / np.sum(e))
 
 
-    def get_param_dict(self, loss):
-        dict = super().get_param_dict(loss)
-        for (i,shape) in enumerate(self.shapes):
-            dict_i = shape.get_param_dict(loss)
-            for key, value in dict_i.items():
-                if key != "EMD":
-                    dict[key + "_%d" % self.ids[i]] = value 
-        return dict
+            else:
+                raise KeyError("Does not make sense to use kt to initialize a structure without points!")
 
-
-
-    # Generate points according to the parameters
-    def get_points(self,):
-        pass
+        # Make sure things that should be frozen stay frozen
+        for param in self.freeze_list:
+            self.freeze(param, self.freeze_list[param])
 
     def draw(self, ax):
-        pass
+        if self.plotter is None:
+            pass
+        else:
+            self.plotter(ax, self.params)
 
-    def __str__(self):
-        pass
+
+def kt_initializer(event, R):
+
+    y, z = event
+
+    four_vectors = []
+    for (y_i, z_i) in zip(y, z):
+        v = (z_i, y_i[0], y_i[1], 0)
+        four_vectors.append(v)
+    four_vectors = np.array(four_vectors, dtype = [("pt", "f8"),("eta", "f8"),("phi", "f8"),("mass", "f8")])
+    sequence = cluster(four_vectors, R=R, p=1)
+    return sequence
+
+
+
+def exclusive_jets(sequence, N):
+
+    jets = sequence.exclusive_jets(N)
+
+    # Apply initialization
+    jets = jets[:N]
+    initialization = []
+    energies = []
+    for jet in jets:
+        initialization.append([jet.eta, jet.phi])
+        energies.append(jet.pt)
+    initialization = np.array(initialization).astype(np.float32)
+    return initialization, energies 
