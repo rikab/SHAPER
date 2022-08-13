@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 
@@ -13,7 +14,10 @@ class Manifold(nn.Module):
 
         if (self.params.shape == params.shape):
             with torch.no_grad():
-                self.params.copy_(torch.Tensor(params))
+                if isinstance(params, np.ndarray):
+                    self.params.copy_(torch.Tensor(params))
+                else:
+                    self.params.copy_(params)
         else:
             raise ValueError("Expected shape " + str(self.params.shape) + ", got shape " + str(params.shape))    
 
@@ -41,7 +45,7 @@ class Simplex(Manifold):
 
     def enforce(self):
 
-        cnt_n = torch.arange(self.N)
+        cnt_n = torch.arange(self.N, device = self.params.device)
         u = self.params.sort(descending=True).values
         v = (u.cumsum(dim = 0) - 1) / (cnt_n + 1)
         w = v[(u > v).sum() - 1]

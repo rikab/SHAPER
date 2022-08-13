@@ -1,0 +1,16 @@
+[W 14:48:00.684 NotebookApp] WARNING: The notebook server is listening on all IP addresses and not using encryption. This is not recommended.
+[I 14:48:00.706 NotebookApp] Serving notebooks from local directory: /n/home01/rikab/SHAPER
+[I 14:48:00.707 NotebookApp] Jupyter Notebook 6.4.12 is running at:
+[I 14:48:00.707 NotebookApp] http://holylogin03.rc.fas.harvard.edu:9999/?token=7bf5e8a94a6035daec010b738b844c80c353b62acb747034
+[I 14:48:00.707 NotebookApp]  or http://127.0.0.1:9999/?token=7bf5e8a94a6035daec010b738b844c80c353b62acb747034
+[I 14:48:00.707 NotebookApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 14:48:00.875 NotebookApp] 
+    
+    To access the notebook, open this file in a browser:
+        file:///n/home01/rikab/.local/share/jupyter/runtime/nbserver-28281-open.html
+    Or copy and paste one of these URLs:
+        http://holylogin03.rc.fas.harvard.edu:9999/?token=7bf5e8a94a6035daec010b738b844c80c353b62acb747034
+     or http://127.0.0.1:9999/?token=7bf5e8a94a6035daec010b738b844c80c353b62acb747034
+[?1049h[1;24r(B[m[4l[?7h[?1h=[39;49m[39;49m[97m[40m(B[m[39;49m[97m[40m[H[2J[37m[40m[J(B[m[39;49m[97m[40m[22d[93m[44mGetting file://localhost/n/home01/rikab/.local/share/jupyter/runtime/nbserver-2[K(B[m[39;49m[97m[40m
+
+[39;49m[K[24;1H[?1049l[?1l>

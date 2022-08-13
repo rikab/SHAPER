@@ -47,6 +47,8 @@ class Shaper(nn.Module):
         if isinstance(events[1], np.ndarray):
             events = [events,]
         xi, ai = self.batcher(events)
+        xi = xi.to(self.dev)
+        ai = ai.to(self.dev)
         batch_size = xi.shape[0]
 
         # Initialize N_event copies of the observables (TODO: Parallelize this)
@@ -84,8 +86,13 @@ class Shaper(nn.Module):
                 
             
                  # Sample observables (TODO: parallelize sampling over batch)
-                yj, bj = self.batcher([self.observable_batch[i][obs].sample(N) for i in range(batch_size)])
-                min_losses[obs] = Loss(ai, xi, bj, yj).detach().numpy()
+                samples= [self.observable_batch[i][obs].sample(N) for i in range(batch_size)]
+                yj = [sample[0] for  sample in samples]
+                bj = [sample[1] for  sample in samples]
+                yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
+
+
+                min_losses[obs] = Loss(ai, xi, bj, yj).cpu().detach().numpy()
                 for i in np.array(range(batch_size)):
                     min_params[obs][i] = self.observable_batch[i][obs].params
 
@@ -107,8 +114,10 @@ class Shaper(nn.Module):
                 for epoch in range(epochs):
 
                     # Sample observables (TODO: parallelize sampling over batch)
-                    yj, bj = self.batcher([self.observable_batch[i][obs].sample(N) for i in np.array(range(batch_size))[mask]])
-
+                    samples= [self.observable_batch[i][obs].sample(N) for i in np.array(range(batch_size))[mask]]
+                    yj = [sample[0] for  sample in samples]
+                    bj = [sample[1] for  sample in samples]
+                    yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
                     # Calculate losses
                     # optimizer.zero_grad()
@@ -118,7 +127,7 @@ class Shaper(nn.Module):
                     Loss_xy.sum().backward()
                     optimizer.step()
                 
-                    losses[obs][mask] = Loss_xy.detach().numpy()
+                    losses[obs][mask] = Loss_xy.cpu().detach().numpy()
 
                     # Enforce parameter constraints (TODO: Parallelize)
                     for i in range(batch_size):
@@ -210,6 +219,7 @@ class Shaper(nn.Module):
 
     def reset(self):
         self.observable_batch = None
+        self.dev = next(self.parameters()).device
 
     def format_param_dictionary(self, dictionary):
         
