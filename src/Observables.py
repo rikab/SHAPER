@@ -28,6 +28,7 @@ class Observable(nn.Module):
 
         if initializer is None:
             self.initializer = param_dict.copy()
+            self.initializer = None
         else:
             self.initializer = initializer
 
