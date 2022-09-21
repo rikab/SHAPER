@@ -11,6 +11,7 @@ import os
 import torch
 import torch.nn as nn
 from torch import optim
+from torch.autograd import grad
 
 torch.autograd.set_detect_anomaly(False)
 torch.autograd.profiler.profile(False)
@@ -33,7 +34,7 @@ class Shaper(nn.Module):
     def forward(self, events):
         return self.calculate(events)
 
-    def calculate(self, events, epochs=500, early_stopping=25, lr=0.05, N=250, epsilon=0.01, scaling=0.5, verbose=False, plot_dictionary=None):
+    def calculate(self, events, epochs=500, early_stopping=25, lr=0.05, N=250, epsilon=0.01, scaling=0.5, return_grads=False, verbose=False, plot_dictionary=None):
 
         self.dev = self.device
         self.reset()
@@ -156,7 +157,35 @@ class Shaper(nn.Module):
         # format params
         params = {}
 
-        return min_losses, min_params
+        # Calculate gradients
+        if return_grads:
+
+            Fs = {}
+            dxs = {}
+
+            for obs in self.observables:
+
+                ai.requires_grad = True
+                xi.requires_grad = True
+
+                beta = self.observables[obs].beta
+                Loss = SamplesLoss("sinkhorn", p=beta, blur=epsilon**(1/beta), scaling=scaling, diameter=self.observables[obs].R * 2)
+
+                samples = [self.observable_batch[i][obs].sample(N) for i in range(batch_size)]
+                yj = [sample[0] for sample in samples]
+                bj = [sample[1] for sample in samples]
+                yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
+
+                Loss_xy = Loss(ai, xi, bj, yj).sum()
+                F_i, dx_i = grad(Loss_xy, [ai, xi])
+
+                Fs[obs] = F_i.cpu().detach().numpy()
+                dxs[obs] = dx_i.cpu().detach().numpy()
+
+            return min_losses, min_params, Fs, dxs
+
+        else:
+            return min_losses, min_params
 
     def plot(self, events, obs, losses, directory, extension="png", gif_extention=""):
 

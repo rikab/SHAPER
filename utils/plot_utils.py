@@ -3,7 +3,6 @@ import os
 from time import time
 import numpy as np
 from matplotlib import pyplot as plt
-plt.style.use('seaborn-white')
 
 
 def plot_event(y_i, z_i, R, filename=None, color="red", show=True):
