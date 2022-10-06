@@ -18,7 +18,7 @@ torch.autograd.profiler.profile(False)
 torch.autograd.profiler.emit_nvtx(False)
 
 
-class Shaper(nn.Module):
+class NShaper(nn.Module):
 
     def __init__(self, observables, device=None, batch_size=None) -> None:
         super().__init__()
@@ -64,6 +64,8 @@ class Shaper(nn.Module):
             beta = self.observables[obs].beta
             Loss = SamplesLoss("sinkhorn", p=beta, blur=epsilon**(1/beta), scaling=scaling, diameter=self.observables[obs].R * 2)
 
+            def Loss(ai, xi, yj):
+
             min_losses[obs] = np.ones((batch_size,)) * np.inf
             min_params[obs] = [None, ] * batch_size
             losses[obs] = np.ones((batch_size,)) * np.inf
@@ -85,7 +87,7 @@ class Shaper(nn.Module):
                 bj = [sample[1] for sample in samples]
                 yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
-                min_losses[obs] = Loss(ai, xi, bj, yj).cpu().detach().numpy() / self.observables[obs].R**beta
+                min_losses[obs] = Loss(ai, xi, yj).cpu().detach().numpy() / self.observables[obs].R**beta
                 for i in np.array(range(batch_size)):
                     min_params[obs][i] = self.observable_batch[i][obs].params
 
@@ -116,7 +118,7 @@ class Shaper(nn.Module):
                     # optimizer.zero_grad()
                     for param in self.observable_batch.parameters():
                         param.grad = None
-                    Loss_xy = Loss(ai[mask], xi[mask], bj, yj) / self.observables[obs].R**beta
+                    Loss_xy = Loss(ai[mask], xi[mask], yj) / self.observables[obs].R**beta
                     Loss_xy.sum().backward()
                     optimizer.step()
 
