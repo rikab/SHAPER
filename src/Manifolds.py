@@ -3,7 +3,6 @@ import torch.nn as nn
 import numpy as np
 
 
-
 class Manifold(nn.Module):
 
     def __init__(self):
@@ -19,11 +18,12 @@ class Manifold(nn.Module):
                 else:
                     self.params.copy_(params)
         else:
-            raise ValueError("Expected shape " + str(self.params.shape) + ", got shape " + str(params.shape))    
+            raise ValueError("Expected shape " + str(self.params.shape) + ", got shape " + str(params.shape))
+
 
 class Coordinates2D(Manifold):
 
-    def __init__(self, N, R = 1):
+    def __init__(self, N, R=1):
         super().__init__()
         self.N = N
         self.R = R
@@ -45,27 +45,24 @@ class Simplex(Manifold):
 
     def enforce(self):
 
-        cnt_n = torch.arange(self.N, device = self.params.device)
+        # pass
+        cnt_n = torch.arange(self.N, device=self.params.device)
         u = self.params.sort(descending=True).values
-        v = (u.cumsum(dim = 0) - 1) / (cnt_n + 1)
+        v = (u.cumsum(dim=0) - 1) / (cnt_n + 1)
         w = v[(u > v).sum() - 1]
         self.set((self.params - w).relu())
 
 
-
 class PositiveReals(Manifold):
 
-    def __init__(self, N, initializer = 1):
+    def __init__(self, N, initializer=1):
         super().__init__()
         self.N = N
         self.params = torch.nn.Parameter(initializer * torch.ones((N,)) / N)
         self.default_value = initializer * torch.ones((N,)) / N
 
     def enforce(self):
-        pass
         self.set(self.params.relu())
-
-
 
 
 # lass Manifold():
@@ -78,7 +75,7 @@ class PositiveReals(Manifold):
 
 #     def __mul__(self, manifold):
 
-#         if isinstance(manifold, Manifold):  
+#         if isinstance(manifold, Manifold):
 #             return Manifold(self.parameters + manifold.parameters, self.labels + manifold.labels, [self, manifold])
 #         else:
 #             raise TypeError("Can only multiply Manifolds by other Manifolds, found %s" % type(manifold))

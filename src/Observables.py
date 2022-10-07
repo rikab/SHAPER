@@ -9,14 +9,14 @@ from pyjet import cluster
 import torch
 import torch.nn as nn
 
-# SHAPER 
+# SHAPER
 from src.Manifolds import Manifold, Simplex
 
 
 class Observable(nn.Module):
 
-    def __init__(self, param_dict, sampler, beta, R, initializer = None, plotter = None) -> None:
-        
+    def __init__(self, param_dict, sampler, beta, R, initializer=None, plotter=None) -> None:
+
         super().__init__()
         self.params = nn.ModuleDict(param_dict)
         self.sampler = sampler
@@ -35,11 +35,13 @@ class Observable(nn.Module):
         self.freeze_list = {}
         self.is_trivial = (len(list(self.parameters())) == 0)
 
-
     # TODO: Implement "Simplify", parser when parameters have same names
+
     def __add__(self, observable):
 
-        if isinstance(observable, Observable): 
+        if isinstance(observable, Observable):
+
+            # Get simplex weight
 
             new_param_dict = {**self.params, **observable.params}
             new_param_dict["Joint Weights"] = Simplex(2)
@@ -48,13 +50,17 @@ class Observable(nn.Module):
             def new_sampler(N, new_param_dict):
                 e1, z1 = self.sampler(N, new_param_dict)
                 e2, z2 = observable.sampler(N, new_param_dict)
-                
+
                 # Concatenate and reweight
-                e = torch.cat([e1, e2], dim = 0)
-                z = torch.cat([z1 * new_param_dict["Joint Weights"].params[0], z2 * new_param_dict["Joint Weights"].params[1]], dim = 0)
+                e = torch.cat([e1, e2], dim=0)
+                z = torch.cat([z1 * new_param_dict["Joint Weights"].params[0], z2 * new_param_dict["Joint Weights"].params[1]], dim=0)
                 return e, z
 
-            return Observable(new_param_dict, new_sampler, beta = self.beta, R = self.R, initializer= self.initializer) 
+            def new_plotter(ax, new_param_dict):
+                self.draw(ax)
+                observable.draw(ax)
+
+            return Observable(new_param_dict, new_sampler, beta=self.beta, R=self.R, initializer=self.initializer, plotter=new_plotter)
 
             # return Manifold(self.parameters + manifold.parameters, self.labels + manifold.labels, [self, manifold])
         else:
@@ -70,8 +76,7 @@ class Observable(nn.Module):
             if self.params[manifold].params.requires_grad:
                 self.params[manifold].enforce()
 
-
-    def freeze(self, parameter, value = None):
+    def freeze(self, parameter, value=None):
 
         if value is not None:
             self.params[parameter].set(value)
@@ -79,17 +84,17 @@ class Observable(nn.Module):
 
         self.freeze_list[parameter] = value
 
-
     def initialize(self, event):
 
         # Set default backup value if no initialization scheme exists
         for param in self.params:
             self.params[param].set(self.params[param].default_value)
-        
+            self.params[param].params.requires_grad = True
+
         # Initialization dictionary
         if (type(self.initializer) is dict):
             self.params = nn.ParameterDict(self.initializer.copy())
-        
+
         # Default kt-initializer
         elif self.initializer == "kt":
 
@@ -100,7 +105,6 @@ class Observable(nn.Module):
 
             if "Points" in self.params.keys():
 
-                
                 # If N is too large, set the initializtion to the points themselves
                 if (N >= event[0].shape[0]):
                     temp_points = np.zeros(self.params["Points"].shape)
@@ -128,19 +132,20 @@ class Observable(nn.Module):
                 # Circle initializer based on clustering history
                 if "Radius" in self.params.keys():
 
-                    if N > 1:
-                        raise NotImplementedError("N > 1 circle initializer not implemented yet.")
+                    # if N > 1:
+                    #     raise NotImplementedError("N > 1 circle initializer not implemented yet.")
 
-                    reclustered = cluster(jets[0].constituents_array(), R = self.R, p = 1)
+                    reclustered = cluster(jets[0].constituents_array(), R=self.R, p=1)
 
                     # Make the assumption that the harder jet is the point and the softer one is the radius
-                    p, e = exclusive_jets(reclustered, 2)
+                    p, e = exclusive_jets(reclustered, N*2)
                     r = np.sqrt(np.sum(np.square(p[0] - p[1])))
 
-                    self.params["Radius"].set(torch.ones((1,)) * r)
+                    self.params["Radius"].set(torch.ones((N,)) * r)
                     # self.params["Radius"].set(torch.ones((1,)) * self.R / 2)
+                    num_weights = self.params["Structure Weights"].N
+                    p, e = exclusive_jets(reclustered, num_weights)
                     self.params["Structure Weights"].set(e / np.sum(e))
-
 
             else:
                 raise KeyError("Does not make sense to use kt to initialize a structure without points!")
@@ -164,10 +169,9 @@ def kt_initializer(event, R):
     for (y_i, z_i) in zip(y, z):
         v = (z_i, y_i[0], y_i[1], 0)
         four_vectors.append(v)
-    four_vectors = np.array(four_vectors, dtype = [("pt", "f8"),("eta", "f8"),("phi", "f8"),("mass", "f8")])
+    four_vectors = np.array(four_vectors, dtype=[("pt", "f8"), ("eta", "f8"), ("phi", "f8"), ("mass", "f8")])
     sequence = cluster(four_vectors, R=R, p=1)
     return sequence
-
 
 
 def exclusive_jets(sequence, N):
@@ -182,4 +186,4 @@ def exclusive_jets(sequence, N):
         initialization.append([jet.eta, jet.phi])
         energies.append(jet.pt)
     initialization = np.array(initialization).astype(np.float32)
-    return initialization, energies 
+    return initialization, energies

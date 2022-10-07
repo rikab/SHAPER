@@ -85,6 +85,9 @@ class Shaper(nn.Module):
                 bj = [sample[1] for sample in samples]
                 yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
+                yj.to_device(self.dev)
+                bj.to_device(self.dev)
+
                 min_losses[obs] = Loss(ai, xi, bj, yj).cpu().detach().numpy() / self.observables[obs].R**beta
                 for i in np.array(range(batch_size)):
                     min_params[obs][i] = self.observable_batch[i][obs].params
@@ -112,10 +115,14 @@ class Shaper(nn.Module):
                     bj = [sample[1] for sample in samples]
                     yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
+                    yj.to_device(self.dev)
+                    bj.to_device(self.dev)
+
                     # Calculate losses
-                    # optimizer.zero_grad()
-                    for param in self.observable_batch.parameters():
-                        param.grad = None
+                    optimizer.zero_grad()
+                    # for param in self.observable_batch.parameters():
+                    #     param.grad = None
+                    #     param.requires_grad = True
                     Loss_xy = Loss(ai[mask], xi[mask], bj, yj) / self.observables[obs].R**beta
                     Loss_xy.sum().backward()
                     optimizer.step()
@@ -156,6 +163,8 @@ class Shaper(nn.Module):
 
         # format params
         params = {}
+        for obs in self.observables:
+            pass
 
         # Calculate gradients
         if return_grads:
@@ -175,6 +184,9 @@ class Shaper(nn.Module):
                 yj = [sample[0] for sample in samples]
                 bj = [sample[1] for sample in samples]
                 yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
+
+                yj.to_device(self.dev)
+                bj.to_device(self.dev)
 
                 Loss_xy = Loss(ai, xi, bj, yj).sum()
                 F_i, dx_i = grad(Loss_xy, [ai, xi])

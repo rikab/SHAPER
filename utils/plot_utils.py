@@ -42,6 +42,7 @@ def plot_event(y_i, z_i, R, filename=None, color="red", title="", show=True):
 
 def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red"):
 
+    plt.rcParams.update({'font.size': 18})
     fig, ax = plt.subplots(constrained_layout=True, figsize=(6, 6))
 
     pts, ys, phis = z_i, y_i[:, 0], y_i[:, 1]
@@ -53,11 +54,11 @@ def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red"):
 
     # Legend
     legend = plt.legend(loc=(0.1, 1.0), frameon=False, ncol=3, handletextpad=0)
-    legend.legendHandles[0]._sizes = [50]
-    try:
-        legend.legendHandles[1]._sizes = [50]
-    except:
-        pass
+    # legend.legendHandles[0]._sizes = [50]
+    # try:
+    #     # legend.legendHandles[1]._sizes = [50]
+    # except:
+    #     pass
 
     # plot settings
     plt.title(title, loc="right")
@@ -65,7 +66,8 @@ def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red"):
     plt.ylim(-R, R)
     plt.xlabel('Rapidity')
     plt.ylabel('Azimuthal Angle')
-    # plt.xticks(np.linspace(-R, R, 5)); plt.yticks(np.linspace(-R, R, 5))
+    plt.xticks(np.linspace(-R, R, 5))
+    plt.yticks(np.linspace(-R, R, 5))
 
     ax.set_aspect('equal')
     if filename:
