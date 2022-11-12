@@ -85,12 +85,12 @@ class Shaper(nn.Module):
                 bj = [sample[1] for sample in samples]
                 yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
-                yj.to_device(self.dev)
-                bj.to_device(self.dev)
+                yj.to(self.dev)
+                bj.to(self.dev)
 
                 min_losses[obs] = Loss(ai, xi, bj, yj).cpu().detach().numpy() / self.observables[obs].R**beta
                 for i in np.array(range(batch_size)):
-                    min_params[obs][i] = self.observable_batch[i][obs].params
+                    min_params[obs][i] = self.observable_batch[i][obs].get_dict(self.device)
 
                 if verbose:
                     print("Observable:", obs, "Mean Loss =", np.mean(min_losses[obs]))
@@ -115,8 +115,8 @@ class Shaper(nn.Module):
                     bj = [sample[1] for sample in samples]
                     yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
-                    yj.to_device(self.dev)
-                    bj.to_device(self.dev)
+                    yj.to(self.dev)
+                    bj.to(self.dev)
 
                     # Calculate losses
                     optimizer.zero_grad()
@@ -147,7 +147,7 @@ class Shaper(nn.Module):
                     for i in np.array(range(batch_size))[mask]:
                         if losses[obs][i] < min_losses[obs][i] * (1.0-epsilon):
                             min_losses[obs][i] = losses[obs][i]
-                            min_params[obs][i] = self.observable_batch[i][obs].params
+                            min_params[obs][i] = self.observable_batch[i][obs].get_dict(self.device)
                             counts[i] = 0
                         else:
                             counts[i] += 1
@@ -157,7 +157,7 @@ class Shaper(nn.Module):
 
             # Plotting
             if plot_dictionary and plot_dictionary.get("plot_directory") is not None:
-                self.plot(events, obs, losses, plot_dictionary.get("plot_directory"), plot_dictionary["extension"])
+                self.plot(events, obs, losses, plot_dictionary.get("plot_directory"), extension=plot_dictionary["extension"], title=plot_dictionary["title"])
             if plot_dictionary and plot_dictionary.get("gif_directory") is not None:
                 self.make_gifs(gif_filenames, obs, plot_dictionary.get("gif_directory"))
 
@@ -185,8 +185,8 @@ class Shaper(nn.Module):
                 bj = [sample[1] for sample in samples]
                 yj, bj = nn.utils.rnn.pad_sequence(yj, batch_first=True), nn.utils.rnn.pad_sequence(bj, batch_first=True)
 
-                yj.to_device(self.dev)
-                bj.to_device(self.dev)
+                yj.to(self.dev)
+                bj.to(self.dev)
 
                 Loss_xy = Loss(ai, xi, bj, yj).sum()
                 F_i, dx_i = grad(Loss_xy, [ai, xi])
@@ -199,7 +199,7 @@ class Shaper(nn.Module):
         else:
             return min_losses, min_params
 
-    def plot(self, events, obs, losses, directory, extension="png", gif_extention=""):
+    def plot(self, events, obs, losses, directory, title="", extension="png", gif_extention=""):
 
         # Make directory is it doesn't exist
         dir = os.path.join(directory, obs)
@@ -210,12 +210,12 @@ class Shaper(nn.Module):
         filenames = []
         for i in range(len(events)):
 
-            filename = os.path.join(dir, "event_%d.%s" % (i, extension))
-            title = "Event %d, %s" % (i, obs)
+            filename = os.path.join(dir, "%s event_%d.%s" % (obs, i, extension))
+            _title = "%s, %s" % (obs, title)
             if gif_extention != "":
                 filename = os.path.join(dir, "event_%d_%s.gif.png" % (i, gif_extention))
-                title += ", Epoch %s" % (str(gif_extention))
-            plot_observable(events[i][0], events[i][1], self.observable_batch[i][obs], losses[obs][i], title=title, R=self.observables[obs].R, filename=filename)
+                _title += ", Epoch %s" % (str(gif_extention))
+            plot_observable(events[i][0], events[i][1], self.observable_batch[i][obs], losses[obs][i], title=_title, R=self.observables[obs].R, filename=filename)
             filenames.append(filename)
         return filenames
 
@@ -229,7 +229,7 @@ class Shaper(nn.Module):
 
         for i in range(len(filenames)):
 
-            filename = os.path.join(dir, "event_%d.gif" % i)
+            filename = os.path.join(dir, "%s event_%d.gif" % (obs, i))
             make_gif(filenames[i], filename)
 
     # Function to format events of the form [(x, a)] into a padded pytorch tensor of shape (Batch_size, Pad, dim)

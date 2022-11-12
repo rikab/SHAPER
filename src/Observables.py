@@ -1,5 +1,6 @@
 # Standard Imports
 import numpy as np
+import copy
 from time import time
 
 # Jets
@@ -8,6 +9,7 @@ from pyjet import cluster
 # ML
 import torch
 import torch.nn as nn
+from scipy.spatial.distance import cdist
 
 # SHAPER
 from src.Manifolds import Manifold, Simplex
@@ -43,7 +45,12 @@ class Observable(nn.Module):
 
             # Get simplex weight
 
-            new_param_dict = {**self.params, **observable.params}
+            new_param_dict = {}
+            for obs in self.params:
+                new_param_dict[obs] = copy.deepcopy(self.params[obs])
+            for obs in observable.params:
+                new_param_dict[obs] = copy.deepcopy(observable.params[obs])
+
             new_param_dict["Joint Weights"] = Simplex(2)
 
             # TODO: Allocate N better
@@ -56,9 +63,13 @@ class Observable(nn.Module):
                 z = torch.cat([z1 * new_param_dict["Joint Weights"].params[0], z2 * new_param_dict["Joint Weights"].params[1]], dim=0)
                 return e, z
 
+            # def new_initializer
+
             def new_plotter(ax, new_param_dict):
-                self.draw(ax)
-                observable.draw(ax)
+                if self.plotter:
+                    self.plotter(ax, new_param_dict)
+                if observable.plotter:
+                    observable.plotter(ax, new_param_dict)
 
             return Observable(new_param_dict, new_sampler, beta=self.beta, R=self.R, initializer=self.initializer, plotter=new_plotter)
 
@@ -114,14 +125,24 @@ class Observable(nn.Module):
                     temp_energies[:event[0].shape[0]] = event[1]
 
                     points = temp_points
-                    energies = temp_energies
+                    e = temp_energies
 
                 else:
-                    points, energies = exclusive_jets(cluster_sequence, min(N, event[0].shape[0]))
+                    points, e = exclusive_jets(cluster_sequence, min(N, event[0].shape[0]))
 
                 self.params["Points"].set(points)
 
                 if "Weights" in self.params.keys():
+
+                    num_weights = self.params["Weights"].N
+                    energies = np.zeros((num_weights,))
+
+                    if num_weights == N:
+                        energies = e
+                    elif num_weights == 2*N:
+                        for i in range(N):
+                            energies[i] = e[i]
+                            # energies[i + N] = e[i] / 2
 
                     self.params["Weights"].set(energies / np.sum(energies))
 
@@ -138,14 +159,58 @@ class Observable(nn.Module):
                     reclustered = cluster(jets[0].constituents_array(), R=self.R, p=1)
 
                     # Make the assumption that the harder jet is the point and the softer one is the radius
-                    p, e = exclusive_jets(reclustered, N*2)
-                    r = np.sqrt(np.sum(np.square(p[0] - p[1])))
+                    p, e = exclusive_jets(cluster_sequence, N)
+                    e = np.array(e)
+                    num_weights = self.params["Weights"].N
 
-                    self.params["Radius"].set(torch.ones((N,)) * r)
-                    # self.params["Radius"].set(torch.ones((1,)) * self.R / 2)
-                    num_weights = self.params["Structure Weights"].N
-                    p, e = exclusive_jets(reclustered, num_weights)
-                    self.params["Structure Weights"].set(e / np.sum(e))
+                    r_ij = cdist(p, p)
+                    radii = np.zeros((N,))
+                    energies = np.zeros((num_weights,))
+                    if num_weights == N:
+                        energies = e
+                    elif num_weights == 2*N:
+                        for i in range(N):
+                            energies[i] = e[i]
+
+                        print(energies)
+                        # energies[i + N] = e[i] / 2
+                        # energies = np.ones((num_weights,)) / np.sum(e) / num_weights
+                        # points = p[:N]
+
+                        # for iter in range(N):
+
+                        #     r_ij[r_ij == 0] = np.inf
+                        #     d_ij = np.copy(r_ij) #* np.minimum(e[:, None], e[None, :])
+
+                        #     closest_ij = np.unravel_index(d_ij.argmin(), d_ij.shape)
+                        #     radii[iter] = r_ij[closest_ij]
+                        #     if num_weights == N:
+                        #         energies[iter] = e[closest_ij[0]] + e[closest_ij[1]]
+
+                        #     # Choose the harder point to be the center
+                        #     if e[closest_ij[0]] > e[closest_ij[1]]:
+                        #         points[iter] = p[closest_ij[0]]
+                        #         if num_weights == N*2:
+                        #             energies[iter] = e[closest_ij[0]]
+                        #             energies[N + iter] = e[closest_ij[1]]
+
+                        #     else:
+                        #         points[iter] = p[closest_ij[1]]
+                        #         if num_weights == N*2:
+                        #             energies[iter] = e[closest_ij[1]]
+                        #             energies[N + iter] = e[closest_ij[0]]
+
+                        #     # Next interation
+                        #     mask = np.ones((2*(N - iter),), bool)
+                        #     mask[closest_ij[0]] = False
+                        #     mask[closest_ij[1]] = False
+                        #     p = p[mask]
+                        #     e = e[mask]
+                        #     r_ij = cdist(p, p)
+
+                    self.params["Radius"].set(radii)
+                    self.params["Weights"].set(energies / np.sum(energies))
+                    self.params["Points"].set(points)
 
             else:
                 raise KeyError("Does not make sense to use kt to initialize a structure without points!")
@@ -159,6 +224,21 @@ class Observable(nn.Module):
             pass
         else:
             self.plotter(ax, self.params)
+
+    def get_dict(self, dev=None):
+
+        if dev is None:
+            dev = self.device()
+
+        dictionary = {}
+        for manifold in self.params:
+
+            if dev == torch.device("cpu"):
+                dictionary[manifold] = self.params[manifold].params.clone().detach().numpy()
+            else:
+                dictionary[manifold] = self.params[manifold].params.clone().cpu().detach().numpy()
+
+        return dictionary
 
 
 def kt_initializer(event, R):

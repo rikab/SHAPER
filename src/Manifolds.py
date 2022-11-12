@@ -65,6 +65,17 @@ class PositiveReals(Manifold):
         self.set(self.params.relu())
 
 
+class Circle(Manifold):
+
+    def __init__(self, N, initializer=0):
+        super().__init__()
+        self.N = N
+        self.params = torch.nn.Parameter(initializer * torch.ones((N,)) / N)
+        self.default_value = initializer * torch.ones((N,)) / N
+
+    def enforce(self):
+        self.set(self.params % (2 * np.pi) - np.pi)
+
 # lass Manifold():
 
 #     def __init__(self, parameters, labels, submanifolds):
