@@ -301,9 +301,8 @@ def buildCommmonObservables(N, beta, R, device):
                 s = "%d) " % (num - i)
             else:
                 s = ""
-            plt.text(0.05, 0.15 + 0.10*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f)" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], ), fontsize=18, transform=plt.gca().transAxes)
-            plt.text(0.05, 0.10 + 0.10*i, r"    Eff. Rad: %.2f, Ecc: %.2f" % (np.sqrt(radii1[i] * radii2[i]), eccentricity), fontsize=18, transform=plt.gca().transAxes)
+            plt.text(0.05, 0.10 + 0.05*i, s + r"Eff. Rad: %.2f, Ecc: %.2f, z$_\mathcal{O}$: %.2f" %
+                     (np.sqrt(radii1[i] * radii2[i]), eccentricity, weights[i], ), fontsize=18, transform=plt.gca().transAxes)
 
     # Sample from a normalized uniform distribution
 

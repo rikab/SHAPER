@@ -147,12 +147,17 @@ class Shaper(nn.Module):
                     for i in np.array(range(batch_size))[mask]:
                         if losses[obs][i] < min_losses[obs][i] * (1.0-epsilon):
                             min_losses[obs][i] = losses[obs][i]
-                            min_params[obs][i] = self.observable_batch[i][obs].get_dict(self.device)
+                            d = self.observable_batch[i][obs].get_dict(self.device)
+                            d["EMD"] = min_losses[obs][i]
+                            min_params[obs][i] = d
                             counts[i] = 0
                         else:
                             counts[i] += 1
                     mask = counts < early_stopping
                     if np.sum(mask) == 0:
+                        break
+
+                    if (100 * (batch_size - np.sum(mask))/batch_size) > 95:
                         break
 
             # Plotting
