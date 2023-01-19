@@ -46,7 +46,7 @@ def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red"):
     fig, ax = plt.subplots(constrained_layout=True, figsize=(8, 8))
 
     pts, ys, phis = z_i, y_i[:, 0], y_i[:, 1]
-    ax.scatter(ys, phis, marker='o', s=2 * pts * 500/np.sum(pts), color=color, lw=0, zorder=10, label="Event")
+    ax.scatter(ys, phis, marker='o', s=2 * pts * 500/np.sum(pts), color=color, lw=0, zorder=3, label="Event")
     obs.draw(ax)
 
     # Plot Text
