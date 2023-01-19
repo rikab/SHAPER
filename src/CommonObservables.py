@@ -127,7 +127,12 @@ def buildCommmonObservables(N, beta, R, device):
 
         phi = 2 * np.pi * torch.rand(num, N).to(device)
         r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([radii1[:, None] * torch.cos(phi + angles[:, None]), radii2[:, None] * torch.sin(phi + angles[:, None])], axis=1) * r[:, None, :] + centers[:, :, None]
+
+        x0 = radii1[:, None] * torch.cos(phi)
+        y0 = radii2[:, None] * torch.sin(phi)
+        x = x0*torch.cos(angles[:, None]) - y0*torch.sin(angles[:, None])
+        y = x0*torch.sin(angles[:, None]) + y0*torch.cos(angles[:, None])
+        points = torch.stack([x, y], axis=1) * r[:, None, :] + centers[:, :, None]
         points = torch.cat([point for point in points], dim=1)
 
         # Concatenate and reweight
@@ -258,7 +263,12 @@ def buildCommmonObservables(N, beta, R, device):
 
         phi = 2 * np.pi * torch.rand(num, N).to(device)
         r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([radii1[:, None] * torch.cos(phi + angles[:, None]), radii2[:, None] * torch.sin(phi + angles[:, None])], axis=1) * r[:, None, :] + centers[:, :, None]
+
+        x0 = radii1[:, None] * torch.cos(phi)
+        y0 = radii2[:, None] * torch.sin(phi)
+        x = x0*torch.cos(angles[:, None]) - y0*torch.sin(angles[:, None])
+        y = x0*torch.sin(angles[:, None]) + y0*torch.cos(angles[:, None])
+        points = torch.stack([x, y], axis=1) * r[:, None, :] + centers[:, :, None]
         points = torch.cat([point for point in points], dim=1)
 
         # Concatenate and reweight
@@ -302,287 +312,6 @@ def buildCommmonObservables(N, beta, R, device):
 
         zs = torch.ones((N,)).to(device) / N
         return (points, zs)
-
-    # Sample at N weighted Dirac deltas
-
-    def point_sampler(N, param_dict):
-        return (param_dict["Points"].params, param_dict["Weights"].params)
-
-    def point_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-
-            # Center
-            ax.scatter(centers[i, 0], centers[i, 1], color="Purple", label="Disk", marker="x", s=2 * weights[i] * 500/np.sum(weights), alpha=0.75, zorder=15, lw=3)
-
-            # Text
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f" % (centers[i, 0], centers[i, 1], weights[i]), fontsize=18, transform=plt.gca().transAxes)
-
-    # Disk
-
-    def ring_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii = param_dict["Radius"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        points = torch.stack([torch.cos(phi), torch.sin(phi)], axis=1) * radii[:, None, None] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = points.T
-        z = torch.cat([weights[i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        return (e, z)
-
-    def ring_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii = param_dict["Radius"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5)
-            ax.add_artist(draw_circle)
-
-            # Text
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=18, transform=plt.gca().transAxes)
-
-    # Disk
-
-    def disk_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii = param_dict["Radius"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([torch.cos(phi), torch.sin(phi)], axis=1) * radii[:, None, None] * r[:, None, :] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = points.T
-        z = torch.cat([weights[i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        return (e, z)
-
-    def disk_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii = param_dict["Radius"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25)
-            ax.add_artist(draw_circle)
-
-            # Text
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=18, transform=plt.gca().transAxes)
-
-    # Disk
-
-    def ellipse_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii1 = param_dict["Radius1"].params
-        radii2 = param_dict["Radius2"].params
-        angles = param_dict["Angles"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([radii1[:, None] * torch.cos(phi + angles[:, None]), radii2[:, None] * torch.sin(phi + angles[:, None])], axis=1) * r[:, None, :] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = points.T
-        z = torch.cat([weights[i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        return (e, z)
-
-    def ellipse_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii1 = param_dict["Radius1"].params.clone().detach().numpy()
-        radii2 = param_dict["Radius2"].params.clone().detach().numpy()
-        angles = param_dict["Angles"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25)
-            ax.add_artist(draw_circle)
-
-            # Text
-            eccentricity = np.sqrt(1 - min(radii1[i], radii2[i]) / max(radii1[i], radii2[i]))
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f, Ecc. %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], np.sqrt(radii1[i] * radii2[i]), eccentricity), fontsize=18, transform=plt.gca().transAxes)
-
-    # Point plus disk
-
-    def point_ring_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii = param_dict["Radius"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        points = torch.stack([torch.cos(phi), torch.sin(phi)], axis=1) * radii[:, None, None] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = torch.cat([centers, points.T], dim=0)
-        z1 = torch.cat([weights[i] * torch.ones((1,), device=device) for i in range(num)], dim=0)
-        z2 = torch.cat([weights[num + i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        z = torch.cat([z1, z2], dim=0)
-        return (e, z)
-
-    def point_ring_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii = param_dict["Radius"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5)
-            ax.add_artist(draw_circle)
-
-            # Center
-            ax.scatter(centers[i, 0], centers[i, 1], color="Purple",  marker="x", s=2 * weights[i] * 500/np.sum(weights), alpha=0.5, zorder=15, lw=3)
-
-            # Text
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f), Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=18, transform=plt.gca().transAxes)
-
-    # Point plus disk
-
-    def point_disk_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii = param_dict["Radius"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([torch.cos(phi), torch.sin(phi)], axis=1) * radii[:, None, None] * r[:, None, :] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = torch.cat([centers, points.T], dim=0)
-        z1 = torch.cat([weights[i] * torch.ones((1,), device=device) for i in range(num)], dim=0)
-        z2 = torch.cat([weights[num + i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        z = torch.cat([z1, z2], dim=0)
-        return (e, z)
-
-    def point_disk_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii = param_dict["Radius"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25)
-            ax.add_artist(draw_circle)
-
-            # Center
-            ax.scatter(centers[i, 0], centers[i, 1], color="Purple",  marker="x", s=2 * weights[i] * 500/np.sum(weights), alpha=0.5, zorder=15, lw=3)
-
-            # Text
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f), Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=18, transform=plt.gca().transAxes)
-
-    # Point plus disk
-
-    def point_ellipse_sampler(N, param_dict):
-
-        centers = param_dict["Points"].params
-        num = param_dict["Points"].N
-        radii1 = param_dict["Radius1"].params
-        radii2 = param_dict["Radius2"].params
-        angles = param_dict["Angles"].params
-        weights = param_dict["Weights"].params
-
-        phi = 2 * np.pi * torch.rand(num, N).to(device)
-        r = torch.sqrt(torch.rand(num, N)).to(device)
-        points = torch.stack([radii1[:, None] * torch.cos(phi + angles[:, None]), radii2[:, None] * torch.sin(phi + angles[:, None])], axis=1) * r[:, None, :] + centers[:, :, None]
-        points = torch.cat([point for point in points], dim=1)
-
-        # Concatenate and reweight
-        e = torch.cat([centers, points.T], dim=0)
-        z1 = torch.cat([weights[i] * torch.ones((1,), device=device) for i in range(num)], dim=0)
-        z2 = torch.cat([weights[num + i] * torch.ones((N,), device=device) / N for i in range(num)], dim=0)
-        z = torch.cat([z1, z2], dim=0)
-        return (e, z)
-
-    def point_ellipse_plotter(ax, param_dict):
-
-        centers = param_dict["Points"].params.clone().detach().numpy()
-        radii1 = param_dict["Radius1"].params.clone().detach().numpy()
-        radii2 = param_dict["Radius2"].params.clone().detach().numpy()
-        angles = param_dict["Angles"].params.clone().detach().numpy()
-        weights = param_dict["Weights"].params.clone().detach().numpy()
-        num = param_dict["Points"].N
-
-        for i in range(num):
-            # Circle
-            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25)
-            ax.add_artist(draw_circle)
-
-            # Center
-            ax.scatter(centers[i, 0], centers[i, 1], color="Purple",  marker="x", s=2 * weights[i] * 500/np.sum(weights), alpha=0.5, zorder=15, lw=3)
-
-            # Text
-            eccentricity = np.sqrt(1 - min(radii1[i], radii2[i]) / max(radii1[i], radii2[i]))
-            if num > 1:
-                s = "%d) " % (num - i)
-            else:
-                s = ""
-            plt.text(0.05, 0.15 + 0.10*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f)" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], ), fontsize=18, transform=plt.gca().transAxes)
-            plt.text(0.05, 0.10 + 0.10*i, r"    Eff. Rad: %.2f, Ecc: %.2f" % (np.sqrt(radii1[i] * radii2[i]), eccentricity), fontsize=18, transform=plt.gca().transAxes)
 
     observables_array = []
     CommonObservables = {}
