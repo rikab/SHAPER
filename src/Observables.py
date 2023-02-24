@@ -77,8 +77,11 @@ class Observable(nn.Module):
         else:
             raise TypeError("Can only add Observables with other Observables, found %s" % type(observable))
 
-    def sample(self, N):
-        points, zs = self.sampler(N, self.params)
+    def sample(self, N, params=None):
+        if params is None:
+            points, zs = self.sampler(N, self.params)
+        else:
+            points, zs = self.sampler(N, self.numpy2paramdict(params))
         return points, zs
 
     def enforce(self):
@@ -141,8 +144,9 @@ class Observable(nn.Module):
                         energies = e
                     elif num_weights == 2*N:
                         for i in range(N):
-                            energies[i] = e[i]
-                            # energies[i + N] = e[i] / 2
+                            # energies[i] = e[i]
+                            energies[i] = e[i] / 2
+                            energies[i + N] = e[i] / 2
 
                     self.params["Weights"].set(energies / np.sum(energies))
 
@@ -170,9 +174,10 @@ class Observable(nn.Module):
                         energies = e
                     elif num_weights == 2*N:
                         for i in range(N):
-                            energies[i] = e[i]
+                            # energies[i] = e[i]
+                            energies[i] = e[i] / 2
+                            energies[i + N] = e[i] / 2
 
-                        print(energies)
                         # energies[i + N] = e[i] / 2
                         # energies = np.ones((num_weights,)) / np.sum(e) / num_weights
                         # points = p[:N]
@@ -239,6 +244,15 @@ class Observable(nn.Module):
                 dictionary[manifold] = self.params[manifold].params.clone().cpu().detach().numpy()
 
         return dictionary
+
+    def numpy2paramdict(self, param_dict):
+
+        new_param_dict = {}
+        for obs in param_dict:
+            if obs in self.params:
+                new_param_dict[obs] = copy.deepcopy(self.params[obs])
+                new_param_dict[obs].set(param_dict[obs])
+        return new_param_dict
 
 
 def kt_initializer(event, R):

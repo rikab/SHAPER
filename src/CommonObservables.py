@@ -35,7 +35,7 @@ def buildCommmonObservables(N, beta, R, device):
                 s = "%d) " % (num - i)
             else:
                 s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f" % (centers[i, 0], centers[i, 1], weights[i]), fontsize=18, transform=plt.gca().transAxes)
+            plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f" % (centers[i, 0], centers[i, 1], weights[i]), fontsize=20, transform=plt.gca().transAxes)
 
     # Disk
 
@@ -64,7 +64,7 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5)
+            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5, zorder=11, lw=3)
             ax.add_artist(draw_circle)
 
             # Text
@@ -73,7 +73,7 @@ def buildCommmonObservables(N, beta, R, device):
             else:
                 s = ""
             plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=18, transform=plt.gca().transAxes)
+                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=20, transform=plt.gca().transAxes)
 
     # Disk
 
@@ -103,7 +103,10 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25)
+            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25, zorder=11,)
+            ax.add_artist(draw_circle)
+
+            draw_circle = pltCircle(centers[i, :], radii[i],  facecolor="none", edgecolor="purple", alpha=0.75, lw=3, zorder=11)
             ax.add_artist(draw_circle)
 
             # Text
@@ -112,7 +115,7 @@ def buildCommmonObservables(N, beta, R, device):
             else:
                 s = ""
             plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=18, transform=plt.gca().transAxes)
+                     (centers[i, 0], centers[i, 1], weights[i], radii[i]), fontsize=20, transform=plt.gca().transAxes)
 
     # Disk
 
@@ -151,7 +154,10 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25)
+            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25, zorder=11,)
+            ax.add_artist(draw_circle)
+
+            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="none", edgecolor="purple", alpha=0.75, zorder=11, lw=3)
             ax.add_artist(draw_circle)
 
             # Text
@@ -161,7 +167,7 @@ def buildCommmonObservables(N, beta, R, device):
             else:
                 s = ""
             plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z: %.2f, Rad: %.2f, Ecc. %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], np.sqrt(radii1[i] * radii2[i]), eccentricity), fontsize=18, transform=plt.gca().transAxes)
+                     (centers[i, 0], centers[i, 1], weights[i], np.sqrt(radii1[i] * radii2[i]), eccentricity), fontsize=20, transform=plt.gca().transAxes)
 
     # Point plus disk
 
@@ -192,7 +198,7 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5)
+            draw_circle = pltCircle(centers[i, :], radii[i], fill=False, edgecolor="purple", alpha=0.5, zorder=11, lw=3)
             ax.add_artist(draw_circle)
 
             # Center
@@ -204,7 +210,7 @@ def buildCommmonObservables(N, beta, R, device):
             else:
                 s = ""
             plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f), Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=18, transform=plt.gca().transAxes)
+                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=20, transform=plt.gca().transAxes)
 
     # Point plus disk
 
@@ -236,7 +242,10 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25)
+            draw_circle = pltCircle(centers[i, :], radii[i], facecolor="purple", edgecolor="purple", alpha=0.25, zorder=11,)
+            ax.add_artist(draw_circle)
+
+            draw_circle = pltCircle(centers[i, :], radii[i],  facecolor="none", edgecolor="purple", alpha=0.75, lw=3, zorder=11)
             ax.add_artist(draw_circle)
 
             # Center
@@ -248,7 +257,7 @@ def buildCommmonObservables(N, beta, R, device):
             else:
                 s = ""
             plt.text(0.05, 0.10 + 0.05*i, s + r"x: (%.2f, %.2f), z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f), Rad: %.2f" %
-                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=18, transform=plt.gca().transAxes)
+                     (centers[i, 0], centers[i, 1], weights[i], weights[i+num], radii[i]), fontsize=20, transform=plt.gca().transAxes)
 
     # Point plus disk
 
@@ -289,7 +298,10 @@ def buildCommmonObservables(N, beta, R, device):
 
         for i in range(num):
             # Circle
-            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25)
+            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="purple", edgecolor="purple", alpha=0.25, zorder=11,)
+            ax.add_artist(draw_circle)
+
+            draw_circle = pltEllipse(centers[i, :], 2*radii1[i], 2*radii2[i], angle=angles[i] * 180 / np.pi, facecolor="none", edgecolor="purple", alpha=0.75, zorder=11, lw=3)
             ax.add_artist(draw_circle)
 
             # Center
@@ -301,9 +313,8 @@ def buildCommmonObservables(N, beta, R, device):
                 s = "%d) " % (num - i)
             else:
                 s = ""
-            plt.text(0.05, 0.10 + 0.05*i, s + r"Eff. Rad: %.2f, Ecc: %.2f, z$_\mathcal{O}$: %.2f" %
-                     (np.sqrt(radii1[i] * radii2[i]), eccentricity, weights[i], ), fontsize=18, transform=plt.gca().transAxes)
-
+            plt.text(0.05, 0.10 + 0.05*i, s + r"Eff. Rad: %.2f, Ecc: %.2f, z$_\delta$, z$_\mathcal{O}$: (%.2f, %.2f)" % (
+                np.sqrt(radii1[i] * radii2[i]), eccentricity, weights[i], weights[i+num], ), fontsize=20, transform=plt.gca().transAxes)
     # Sample from a normalized uniform distribution
 
     def uniform_sampler(N, param_dict):
@@ -318,21 +329,21 @@ def buildCommmonObservables(N, beta, R, device):
     for m in range(N):
 
         n = m + 1
-        _nsubjettiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(n)}, point_sampler, beta=1, R=R, initializer="kt", plotter=point_plotter)
+        _nsubjettiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n)}, point_sampler, beta=1, R=R, initializer="kt", plotter=point_plotter)
 
-        _nringiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
+        _nringiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
                                  ring_sampler, beta=1, R=R, initializer="kt", plotter=ring_plotter)
-        _ndiskiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
+        _ndiskiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
                                  disk_sampler, beta=1, R=R, initializer="kt", plotter=disk_plotter)
-        _nellipsiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n, 0),
+        _nellipsiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n, 0),
                                     "Angles": Circle(n, R/2)}, ellipse_sampler, beta=1, R=R, initializer="kt", plotter=ellipse_plotter)
 
-        _npoint_ringiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
+        _npoint_ringiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
                                        point_ring_sampler, beta=1, R=R, initializer="kt", plotter=point_ring_plotter)
-        _npoint_diskiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
+        _npoint_diskiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
                                        point_disk_sampler, beta=1, R=R, initializer="kt", plotter=point_disk_plotter)
-        _npoint_ellipseiness = Observable({"Points": Coordinates2D(n), "Weights": Simplex(2*n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n,
-                                                                                                                                                         0), "Angles": Circle(n, 0)}, point_ellipse_sampler, beta=1, R=R, initializer="kt", plotter=point_ellipse_plotter)
+        _npoint_ellipseiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n,
+                                                                                                                                                            0), "Angles": Circle(n, 0)}, point_ellipse_sampler, beta=1, R=R, initializer="kt", plotter=point_ellipse_plotter)
 
         observables_array.append(_nsubjettiness)
         observables_array.append(_nringiness)

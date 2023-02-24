@@ -34,7 +34,7 @@ class Shaper(nn.Module):
     def forward(self, events):
         return self.calculate(events)
 
-    def calculate(self, events, epochs=500, early_stopping=25, lr=0.05, N=250, epsilon=0.01, scaling=0.5, return_grads=False, verbose=False, plot_dictionary=None):
+    def calculate(self, events, epochs=500, early_stopping=25, early_stopping_fraction=0.95, lr=0.01, N=100, epsilon=0.01, scaling=0.5, return_grads=False, verbose=False, plot_dictionary=None):
 
         self.dev = self.device
         self.reset()
@@ -71,7 +71,7 @@ class Shaper(nn.Module):
 
             # If gif plotter is on, save gif plots
             if plot_dictionary and plot_dictionary.get("gif_directory") is not None:
-                fs = self.plot(events, obs, losses, plot_dictionary.get("gif_directory"), gif_extention="init")
+                fs = self.plot(events, obs, losses, plot_dictionary.get("gif_directory"), gif_extention="init", title=plot_dictionary["title"], plot_dictionary=plot_dictionary)
                 for f in fs:
                     gif_filenames.append([f])
 
@@ -135,7 +135,8 @@ class Shaper(nn.Module):
 
                     # If gif plotter is on, save gif plots
                     if plot_dictionary and plot_dictionary.get("gif_directory") is not None:
-                        fs = self.plot(events, obs, losses, plot_dictionary.get("gif_directory"), gif_extention="%d" % epoch)
+                        fs = self.plot(events, obs, losses, plot_dictionary.get("gif_directory"),
+                                       title=plot_dictionary["title"], gif_extention="%d" % epoch, plot_dictionary=plot_dictionary)
                         for i in range(batch_size):
                             gif_filenames[i].append(fs[i])
 
@@ -157,12 +158,13 @@ class Shaper(nn.Module):
                     if np.sum(mask) == 0:
                         break
 
-                    if (100 * (batch_size - np.sum(mask))/batch_size) > 95:
+                    if ((batch_size - np.sum(mask))/batch_size) >= early_stopping_fraction:
                         break
 
             # Plotting
             if plot_dictionary and plot_dictionary.get("plot_directory") is not None:
-                self.plot(events, obs, losses, plot_dictionary.get("plot_directory"), extension=plot_dictionary["extension"], title=plot_dictionary["title"])
+                self.plot(events, obs, losses, plot_dictionary.get("plot_directory"),
+                          extension=plot_dictionary["extension"], title=plot_dictionary["title"], plot_dictionary=plot_dictionary)
             if plot_dictionary and plot_dictionary.get("gif_directory") is not None:
                 self.make_gifs(gif_filenames, obs, plot_dictionary.get("gif_directory"))
 
@@ -204,7 +206,7 @@ class Shaper(nn.Module):
         else:
             return min_losses, min_params
 
-    def plot(self, events, obs, losses, directory, title="", extension="png", gif_extention=""):
+    def plot(self, events, obs, losses, directory, title="", extension="png", gif_extention="", plot_dictionary=None):
 
         # Make directory is it doesn't exist
         dir = os.path.join(directory, obs)
@@ -216,11 +218,16 @@ class Shaper(nn.Module):
         for i in range(len(events)):
 
             filename = os.path.join(dir, "%s event_%d.%s" % (obs, i, extension))
-            _title = "%s, %s" % (obs, title)
+            if title == "":
+                _title = obs
+            else:
+                _title = "%s, %s" % (obs, title)
+
             if gif_extention != "":
                 filename = os.path.join(dir, "event_%d_%s.gif.png" % (i, gif_extention))
                 _title += ", Epoch %s" % (str(gif_extention))
-            plot_observable(events[i][0], events[i][1], self.observable_batch[i][obs], losses[obs][i], title=_title, R=self.observables[obs].R, filename=filename)
+            plot_observable(events[i][0], events[i][1], self.observable_batch[i][obs], losses[obs][i], title=_title,
+                            R=self.observables[obs].R, filename=filename, plot_dictionary=plot_dictionary)
             filenames.append(filename)
         return filenames
 

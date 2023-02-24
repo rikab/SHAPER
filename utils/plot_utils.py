@@ -40,17 +40,24 @@ def plot_event(y_i, z_i, R, filename=None, color="red", title="", show=True):
         return ax
 
 
-def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red"):
+def plot_observable(y_i, z_i, obs, emd, title, R, filename=None, color="red", plot_dictionary=None):
 
-    plt.rcParams.update({'font.size': 18})
+    plt.rcParams.update({'font.size': 22})
     fig, ax = plt.subplots(constrained_layout=True, figsize=(8, 8))
 
+    alpha = 1
+    if plot_dictionary is not None:
+        if plot_dictionary.get("event_alpha") is not None:
+            alpha = plot_dictionary.get("event_alpha")
+        if plot_dictionary.get("event_color") is not None:
+            color = plot_dictionary.get("event_color")
+
     pts, ys, phis = z_i, y_i[:, 0], y_i[:, 1]
-    ax.scatter(ys, phis, marker='o', s=2 * pts * 500/np.sum(pts), color=color, lw=0, zorder=3, label="Event")
+    ax.scatter(ys, phis, marker='o', s=2 * pts * 500/np.sum(pts), color=color, lw=0, zorder=3, label="Event", alpha=alpha)
     obs.draw(ax)
 
     # Plot Text
-    plt.text(0.05, 0.05, 'EMD: %.3f' % emd, fontsize=18, transform=plt.gca().transAxes)
+    plt.text(0.05, 0.05, 'EMD: %.3f' % emd, fontsize=20, transform=plt.gca().transAxes)
 
     # Legend
     # legend = plt.legend(loc=(0.1, 1.0), frameon=False, ncol=3, handletextpad=0)
