@@ -8,7 +8,7 @@ Pictured: Example of a custom jet algorithm, "3-(Ellipse+Point)iness+Pileup", as
 
 
  The `SHAPER` framework contains::
- * Pre-built observables, including [$N$-jettiness](https://inspirehep.net/literature/876746) and isotropy (https://inspirehep.net/literature/1791220).
+ * Pre-built observables, including [$N$-jettiness](https://inspirehep.net/literature/876746) and [isotropy](https://inspirehep.net/literature/1791220).
  * Novel pre-built observables and jet algorithms for finding ring, disk, or ellipse-like jets, with optional centers for collinear radiation and optional pileup radiation
  * Modules for defining arbitrary shape observables using parameterized manifolds, and building new complex observables from old ones.
  * Modules for evaluating defined shape observables on event data, using the Sinkhorn divergence approximation of the Wasserstein metric. This returns both the shape value ("shapiness") and the optimal shape parameters.
