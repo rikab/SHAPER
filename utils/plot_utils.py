@@ -1,8 +1,12 @@
-import imageio
 import os
 from time import time
 import numpy as np
 from matplotlib import pyplot as plt
+
+try:
+    import imageio
+except ImportError:
+    print("Warning: Package imageio not found. Cannot use gif creation functionality!")
 
 
 def plot_event(y_i, z_i, R, filename=None, color="red", title="", show=True):
