@@ -17,3 +17,5 @@ For an example of how to use `SHAPER`, see the notebook `example.ipynb`. This no
 ## Changelog
 
 * v1.0.0: 24 February 2023. Official public release.
+
+Bugs, Fixes, or Questions? Contact me at rikab@mit.edu
