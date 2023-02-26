@@ -37,4 +37,4 @@ Based on the work in SHAPER: Can You Hear the Shape of a Jet? (arXiv:2302:XXXX)
 
 Bugs, Fixes, Ideas, or Questions? Contact me at rikab@mit.edu
 
-To discuss finer mathematical aspects of convergence under limits, optmization gaurantees, etc, you can also contact Akshunna S. Dogra at adogra@nyu.edu
+To discuss finer mathematical details (model convergence, optimization guarantees, etc), you may also contact Akshunna S. Dogra at adogra@nyu.edu
