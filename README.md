@@ -28,6 +28,22 @@ To use `SHAPER`, the following packages must be installed as prerequisites:
 * [imageio](https://pypi.org/project/imageio/): An image manipulation package. Needed for automatic gif creation -- not needed otherwise.
 * Standard python packages: [numpy](https://numpy.org/), [scipy](https://scipy.org/), [matplotlib](https://matplotlib.org/)
 
+## Citation
+
+If you use `SHAPER`, please cite:
+
+     @article{Ba:2023hix,
+    author = "Ba, Demba and Dogra, Akshunna S. and Gambhir, Rikab and Tasissa, Abiy and Thaler, Jesse",
+    title = "{SHAPER: Can You Hear the Shape of a Jet?}",
+    eprint = "2302.12266",
+    archivePrefix = "arXiv",
+    primaryClass = "hep-ph",
+    reportNumber = "MIT-CTP 5535",
+    month = "2",
+    year = "2023"
+    }
+
+
 
 ## Changelog
 
