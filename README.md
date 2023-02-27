@@ -1,6 +1,6 @@
 # SHAPER (v1.0.0)
 
-`SHAPER` is a framework for defining, building, and evaluating generalized shape observables for collider physics, as defined in arxiv:2302:XXXX. This package can be used for evaluating an extremely large class of IRC-safe observables, with modules in place to define custom observables and jet algorithms using an intuitive geometric language. 
+`SHAPER` is a framework for defining, building, and evaluating generalized shape observables for collider physics, as defined in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.12266)](https://arxiv.org/abs/2302.12266). This package can be used for evaluating an extremely large class of IRC-safe observables, with modules in place to define custom observables and jet algorithms using an intuitive geometric language. 
 
 ![3-point-ellipsiness-plus-pileup_event_0](https://user-images.githubusercontent.com/78619093/221254441-36b3bcc4-65fc-4211-aaef-2332c5dd893e.gif)
 
@@ -33,7 +33,7 @@ To use `SHAPER`, the following packages must be installed as prerequisites:
 
 * v1.0.0: 24 February 2023. Official public release.
 
-Based on the work in SHAPER: Can You Hear the Shape of a Jet? (arXiv:2302:XXXX)
+Based on the work in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.12266)](https://arxiv.org/abs/2302.12266)
 
 Bugs, Fixes, Ideas, or Questions? Contact me at rikab@mit.edu
 
