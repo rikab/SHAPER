@@ -16,7 +16,7 @@ Pictured: Example of a custom jet algorithm, "3-(Ellipse+Point)iness+Pileup", as
 
 ## Example Usage
 
-For an example of how to use `SHAPER`, see the notebook `example.ipynb`. This notebook contains example code for loading data, using pre-built shape observables, defining custom shape observables, running the `SHAPER` algorithm to evaluate these observables, and making plots.
+For an example of how to use `SHAPER`, see the notebook `examples/example.ipynb`. This notebook contains example code for loading data, using pre-built shape observables, defining custom shape observables, running the `SHAPER` algorithm to evaluate these observables, and making plots.
 
 ## Dependencies
 
