@@ -1,6 +1,6 @@
 
 # Standard Imports
-from utils.plot_utils import make_gif, plot_event, plot_observable
+from pyshaper.utils.plot_utils import make_gif, plot_event, plot_observable
 from geomloss import SamplesLoss
 import numpy as np
 from time import time
