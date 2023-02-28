@@ -1,0 +1,92 @@
+[build-system]
+requires = [
+    "hatchling>=1.13.0",
+    "hatch-vcs>=0.3.0",
+]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyshaper"
+dynamic = ["version"]
+description = "framework for defining, building, and evaluating generalized shape observables for collider physics"
+readme = "README.md"
+license = { text = "MIT" }  # SPDX short identifier
+requires-python = ">=3.7"
+authors = [
+    { name = "Rikab Gambhir", email = "rikab@mit.edu" },
+]
+keywords = [
+    "shape observables",
+    "jet physics",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+dependencies = [
+    "torch>=1.10.0",
+    "geomloss>=0.2.3",
+    "pyjet>=1.9.0",  # FIXME: Deprecated
+    "scipy>=1.5.1",
+    "matplotlib>=3.5.0",
+    "numpy",  # compatible versions controlled through scipy
+]
+
+[project.urls]
+Documentation = "https://github.com/rikab/SHAPER"
+Homepage = "https://github.com/rikab/SHAPER"
+"Issue Tracker" = "https://github.com/rikab/SHAPER/issues"
+"Releases" = "https://github.com/rikab/SHAPER/releases"
+"Source Code" = "https://github.com/rikab/SHAPER"
+
+[project.optional-dependencies]
+energyflow = [
+    "energyflow>=1.3.0",
+    "scikit-learn>=1.2.0",
+    "tensorflow>=2.7.0; platform_machine != 'arm64'",
+    "tensorflow-macos>=2.7.0; platform_machine == 'arm64' and platform_system == 'Darwin'",
+]
+viz = [
+    "imageio>=2.20.0",
+]
+all = ["pyshaper[energyflow,viz]"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-version"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/pyshaper/_version.py"
+
+[tool.hatch.build.targets.sdist]
+# only-include files that are needed to ignore examples
+only-include = [
+    "/src",
+    "/LICENSE",
+    "/README.md",
+    "/pyproject.toml",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyshaper"]
+
+[tool.coverage.run]
+source = ["pyshaper"]
+branch = true
+
+[tool.coverage.report]
+precision = 1
+sort = "cover"
+show_missing = true
