@@ -1,6 +1,6 @@
 # SHAPER (v1.0.0)
 
-`SHAPER` is a framework for defining, building, and evaluating generalized shape observables for collider physics, as defined in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.12266)](https://arxiv.org/abs/2302.12266). This package can be used for evaluating an extremely large class of IRC-safe observables, with modules in place to define custom observables and jet algorithms using an intuitive geometric language. 
+`SHAPER` is a framework for defining, building, and evaluating generalized shape observables for collider physics, as defined in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.12266)](https://arxiv.org/abs/2302.12266). This package can be used for evaluating an extremely large class of IRC-safe observables, with modules in place to define custom observables and jet algorithms using an intuitive geometric language.
 
 ![3-point-ellipsiness-plus-pileup_event_0](https://user-images.githubusercontent.com/78619093/221254441-36b3bcc4-65fc-4211-aaef-2332c5dd893e.gif)
 
@@ -13,6 +13,29 @@ Pictured: Example of a custom jet algorithm, "3-(Ellipse+Point)iness+Pileup", as
  * Modules for defining arbitrary shape observables using parameterized manifolds, and building new complex observables from old ones.
  * Modules for evaluating defined shape observables on event data, using the Sinkhorn divergence approximation of the Wasserstein metric. This returns both the shape value ("shapiness") and the optimal shape parameters.
  * Modules for visualizing shape observables and their optimization, as in the GIF above.
+
+## Installation
+
+### From this repository locally
+
+In your Python environment from the top level of this repository run
+
+```
+python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
+python -m pip install .
+# python -m pip install --upgrade '.[all]'  # for all extras
+```
+
+### From GitHub
+
+
+In your Python environment run
+
+```
+python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
+python -m pip install "pyshaper @ git+https://github.com/rikab/shaper.git"
+# python -m pip install --upgrade "pyshaper[all] @ git+https://github.com/rikab/shaper.git"  # for all extras
+```
 
 ## Example Usage
 
