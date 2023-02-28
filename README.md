@@ -24,8 +24,8 @@ To use `SHAPER`, the following packages must be installed as prerequisites:
 * [PyTorch](https://github.com/pytorch/pytorch): A standard tensor operation library.
 * [GeomLoss](https://www.kernel-operations.io/geomloss/): A library for optimal transport.
 * [pyjet](https://github.com/scikit-hep/pyjet): A package for jet clustering, needed for default observable definitions.
-* [Energyflow](https://energyflow.network/): A suite of particle physics tools. This package is OPTIONAL; however, many of the example datasets within `SHAPER` require this package to load. Not necessary if you provide and format your own data.
-* [imageio](https://pypi.org/project/imageio/): An image manipulation package. Needed for automatic gif creation -- not needed otherwise.
+* [Energyflow](https://energyflow.network/): A suite of particle physics tools. This package is OPTIONAL; however, many of the example datasets within `SHAPER` require this package to load. Not necessary if you provide and format your own data. Included as part of the 'energyflow' extra.
+* [imageio](https://pypi.org/project/imageio/): An image manipulation package. Needed for automatic gif creation -- not needed otherwise. Included as part of the 'viz' extra.
 * Standard python packages: [numpy](https://numpy.org/), [scipy](https://scipy.org/), [matplotlib](https://matplotlib.org/)
 
 ## Citation
