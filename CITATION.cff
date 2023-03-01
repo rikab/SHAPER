@@ -1,0 +1,33 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: SHAPER
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Rikab
+    family-names: Gambhir
+    email: rikab@mit.edu
+    affiliation: Massachusetts Institute of Technology
+    orcid: 'https://orcid.org/0000-0002-5108-0448'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7689891
+  - type: url
+    value: 'https://arxiv.org/pdf/2302.12266.pdf'
+repository-code: 'https://github.com/rikab/SHAPER'
+abstract: >-
+  Python implementation of the SHAPER framework for
+  defining, building, and evaluating generalized shape
+  observables for collider physics, as defined in "SHAPER:
+  Can You Hear the Shape of a Jet?" (arxiv:2302.12266)
+keywords:
+  - shape observables
+  - jet physics
+  - collider physics
+license: MIT
+version: v1.0.0
+date-released: '2023-02-24'
