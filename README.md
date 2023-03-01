@@ -59,12 +59,12 @@ If you use `SHAPER`, please cite both this code archive and the corresponding pa
       author = {Rikab Gambhir},
       title = "{pyshaper: v1.0.0}",
       version = {1.0.0},
-      doi = {XYZ},
-      url = {XYZ},
+      doi = {10.5281/zenodo.7689891},
+      url = {doi.org/10.5281/zenodo.7689891,
       note = {https://github.com/rikab/SHAPER/releases/tag/v1.0.0}
     }
 
-     @article{Ba:2023hix,
+    @article{Ba:2023hix,
     author = "Ba, Demba and Dogra, Akshunna S. and Gambhir, Rikab and Tasissa, Abiy and Thaler, Jesse",
     title = "{SHAPER: Can You Hear the Shape of a Jet?}",
     eprint = "2302.12266",
