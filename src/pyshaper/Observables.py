@@ -12,7 +12,7 @@ import torch.nn as nn
 from scipy.spatial.distance import cdist
 
 # SHAPER
-from src.Manifolds import Manifold, Simplex
+from pyshaper.Manifolds import Manifold, Simplex
 
 
 class Observable(nn.Module):

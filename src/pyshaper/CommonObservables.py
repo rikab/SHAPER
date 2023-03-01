@@ -3,10 +3,10 @@ from matplotlib.collections import PathCollection
 from matplotlib.patches import Rectangle as pltRectangle
 from matplotlib.patches import Ellipse as pltEllipse
 from matplotlib.patches import Circle as pltCircle
-from src.Manifolds import Coordinates2D, Simplex, PositiveReals, Circle
+from pyshaper.Manifolds import Coordinates2D, Simplex, PositiveReals, Circle
 import torch.nn as nn
 import torch
-from src.Observables import Observable
+from pyshaper.Observables import Observable
 import numpy as np
 from time import time
 from matplotlib import pyplot as plt
