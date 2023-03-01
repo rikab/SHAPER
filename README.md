@@ -53,7 +53,16 @@ To use `SHAPER`, the following packages must be installed as prerequisites:
 
 ## Citation
 
-If you use `SHAPER`, please cite:
+If you use `SHAPER`, please cite both this code archive and the corresponding paper, "Can You Hear the Shape of a Jet"?:
+
+    @software{SHAPER,
+      author = {Rikab Gambhir},
+      title = "{pyshaper: v1.0.0}",
+      version = {1.0.0},
+      doi = {XYZ},
+      url = {XYZ},
+      note = {https://github.com/rikab/SHAPER/releases/tag/v1.0.0}
+    }
 
      @article{Ba:2023hix,
     author = "Ba, Demba and Dogra, Akshunna S. and Gambhir, Rikab and Tasissa, Abiy and Thaler, Jesse",
