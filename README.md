@@ -16,6 +16,16 @@ Pictured: Example of a custom jet algorithm, "3-(Ellipse+Point)iness+Pileup", as
 
 ## Installation
 
+### From PyPI
+
+In your Python environment run
+
+```
+python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
+python -m pip install pyshaper
+# python -m pip install --upgrade 'pyshaper[all]'  # for all extras
+```
+
 ### From this repository locally
 
 In your Python environment from the top level of this repository run
@@ -27,7 +37,6 @@ python -m pip install .
 ```
 
 ### From GitHub
-
 
 In your Python environment run
 
