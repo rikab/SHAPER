@@ -1,5 +1,11 @@
 # SHAPER (v1.0.0)
 
+[![GitHub Project](https://img.shields.io/badge/GitHub--blue?style=social&logo=GitHub)](https://github.com/rikab/shaper)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7689890.svg)](https://doi.org/10.5281/zenodo.7689890)
+
+[![PyPI version](https://img.shields.io/pypi/v/pyshaper.svg)](https://pypi.org/project/pyshaper/)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/pyshaper.svg)](https://pypi.org/project/pyshaper/)
+
 `SHAPER` is a framework for defining, building, and evaluating generalized shape observables for collider physics, as defined in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.12266)](https://arxiv.org/abs/2302.12266). This package can be used for evaluating an extremely large class of IRC-safe observables, with modules in place to define custom observables and jet algorithms using an intuitive geometric language.
 
 ![3-point-ellipsiness-plus-pileup_event_0](https://user-images.githubusercontent.com/78619093/221254441-36b3bcc4-65fc-4211-aaef-2332c5dd893e.gif)
@@ -59,8 +65,8 @@ If you use `SHAPER`, please cite both this code archive and the corresponding pa
       author = {Rikab Gambhir},
       title = "{pyshaper: v1.0.0}",
       version = {1.0.0},
-      doi = {10.5281/zenodo.7689891},
-      url = {doi.org/10.5281/zenodo.7689891,
+      doi = {10.5281/zenodo.7689890},
+      url = {doi.org/10.5281/zenodo.7689890},
       note = {https://github.com/rikab/SHAPER/releases/tag/v1.0.0}
     }
 
