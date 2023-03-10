@@ -58,9 +58,9 @@ For an example of how to use `SHAPER`, see the notebook `examples/example.ipynb`
 
 To run the example, you will need to have `pyshaper` installed with all extras. This can be done using (assuming a PyPi installation):
 
-'''
+```
 python -m pip install --upgrade 'pyshaper[all]'
-'''
+```
 
 See the Installation section above for more details.
 
