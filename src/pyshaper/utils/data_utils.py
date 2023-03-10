@@ -1,9 +1,13 @@
+import energyflow as ef
 import numpy as np
 
 # Energy-flow package for CMS Open Data loader
-import energyflow as ef
-from energyflow.archs import PFN, EFN
-from energyflow.utils import remap_pids
+energyflow_flag = True
+try:
+    import energyflow as ef
+except ImportError:
+    energyflow_flag = False
+    print("Warning: Package imageio not found. Cannot use gif creation functionality!")
 
 
 # ###############################
@@ -11,6 +15,9 @@ from energyflow.utils import remap_pids
 # ###############################
 
 def load_cmsopendata(cache_dir, dataset, pt_lower, pt_upper, eta, quality, return_kfactors=True, momentum_scale=250, n=1000, amount=1, frac=1.0):
+
+    if not energyflow_flag:
+        raise ImportError('Need the energyflow package to use the default CMS data loader!')
 
     # Load data
     specs = [f'{pt_lower} <= corr_jet_pts <= {pt_upper}', f'abs_jet_eta < {eta}', f'quality >= {quality}']
