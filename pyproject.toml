@@ -35,7 +35,7 @@ classifiers = [
 ]
 dependencies = [
     "torch>=1.10.0",
-    "geomloss>=0.2.3",
+    "geomloss>=0.2.6",
     "pyjet>=1.9.0",  # FIXME: Deprecated
     "scipy>=1.5.1",
     "matplotlib>=3.5.0",
