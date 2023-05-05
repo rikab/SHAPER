@@ -1,4 +1,4 @@
-# SHAPER (v1.0.1)
+# SHAPER (v1.1.0)
 
 [![GitHub Project](https://img.shields.io/badge/GitHub--blue?style=social&logo=GitHub)](https://github.com/rikab/shaper)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7689890.svg)](https://doi.org/10.5281/zenodo.7689890)
@@ -98,6 +98,7 @@ If you use `SHAPER`, please cite both this code archive and the corresponding pa
 
 ## Changelog
 
+- v1.1.0: 5 May 2023. Updated Geomloss dependency
 - v1.0.1: 10 March 2023. PyPi-installable release. Minor changes to example and optional dependency handling.
 - v1.0.0: 24 February 2023. Official public release.
 
