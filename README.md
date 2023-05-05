@@ -27,7 +27,6 @@ The `SHAPER` framework contains::
 In your Python environment run
 
 ```
-python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
 python -m pip install pyshaper
 # python -m pip install --upgrade 'pyshaper[all]'  # for all extras
 ```
@@ -37,7 +36,6 @@ python -m pip install pyshaper
 In your Python environment from the top level of this repository run
 
 ```
-python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
 python -m pip install .
 # python -m pip install --upgrade '.[all]'  # for all extras
 ```
@@ -47,7 +45,6 @@ python -m pip install .
 In your Python environment run
 
 ```
-python -m pip install numpy torch  # c.f. https://github.com/jeanfeydy/geomloss/issues/69
 python -m pip install "pyshaper @ git+https://github.com/rikab/shaper.git"
 # python -m pip install --upgrade "pyshaper[all] @ git+https://github.com/rikab/shaper.git"  # for all extras
 ```
