@@ -78,11 +78,11 @@ If you use `SHAPER`, please cite both this code archive and the corresponding pa
 
     @software{SHAPER,
       author = {Rikab Gambhir},
-      title = "{pyshaper: v1.0.1}",
-      version = {1.0.1},
+      title = "{pyshaper: v1.1.0}",
+      version = {1.1.0},
       doi = {10.5281/zenodo.7689890},
       url = {doi.org/10.5281/zenodo.7689890},
-      note = {https://github.com/rikab/SHAPER/releases/tag/v1.0.1}
+      note = {https://github.com/rikab/SHAPER/releases/tag/v1.1.0}
     }
 
     @article{Ba:2023hix,
