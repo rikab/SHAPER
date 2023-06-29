@@ -206,6 +206,59 @@ class Shaper(nn.Module):
         else:
             return min_losses, min_params
 
+    
+    def pairwise_emds(self, events, beta, R, epsilon=0.01, scaling=0.9):
+
+        self.dev = self.device
+        self.reset()
+
+        # Batch, Pad, and put into PyTorch format.
+        if len(events) > 1:
+            if isinstance(events[1], np.ndarray):
+                events = [events, ]
+
+        # Pairwise Indices
+        n = len(events)
+        _is, _js = np.triu_indices(n, k=1)
+
+        def index_list(l, indices):
+            arr = []
+            for index in indices:
+                arr.append(l[index])
+            return arr
+
+        events_1 = index_list(events, _is)
+        events_2 = index_list(events, _js)
+
+
+        xi1, ai1 = self.batcher(events_1)
+        xi1 = xi1.to(self.dev)
+        ai1 = ai1.to(self.dev)
+
+        
+        xi2, ai2 = self.batcher(events_2)
+        xi2 = xi2.to(self.dev)
+        ai2 = ai2.to(self.dev)
+        
+        batch_size = xi2.shape[0]
+
+        Loss = SamplesLoss("sinkhorn", p=beta, blur=epsilon**(1/beta), scaling=scaling, diameter = R * 2)
+
+        Loss_xy = Loss(ai1, xi1, ai2, xi2) / R**beta
+
+
+        losses = np.zeros((n, n))
+        k=0
+        for (i,j) in zip(_is, _js):
+            
+            losses[i,j] = Loss_xy.cpu().detach().numpy()[k]
+            losses[j,i] = losses[i,j]
+            k += 1
+        
+        return losses
+    
+    
+    
     def plot(self, events, obs, losses, directory, title="", extension="png", gif_extention="", plot_dictionary=None):
 
         # Make directory is it doesn't exist
