@@ -14,7 +14,7 @@ except ImportError:
 # ########## LOAD DATA ##########
 # ###############################
 
-def load_cmsopendata(cache_dir, dataset, pt_lower, pt_upper, eta, quality, return_kfactors=True, momentum_scale=250, n=1000, amount=1, frac=1.0):
+def load_cmsopendata(cache_dir, dataset, pt_lower, pt_upper, eta, quality, return_numpy = False, return_kfactors=True, momentum_scale=250, n=1000, amount=1, frac=1.0):
 
     if not energyflow_flag:
         raise ImportError('Need the energyflow package to use the default CMS data loader!')
@@ -57,6 +57,7 @@ def load_cmsopendata(cache_dir, dataset, pt_lower, pt_upper, eta, quality, retur
     # PFC's
     events = []
     particle_counts = []
+    np_array = np.zeros((n, 3))
 
     for (i, jet) in enumerate(pfcs):
 
@@ -69,6 +70,7 @@ def load_cmsopendata(cache_dir, dataset, pt_lower, pt_upper, eta, quality, retur
         yphi_avg = np.average(points[mask], weights=zs[mask], axis=0)
         points[mask] -= yphi_avg
 
+        
         events.append((points, zs))
         particle_counts.append(jet.shape[0])
 

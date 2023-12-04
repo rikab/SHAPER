@@ -41,7 +41,7 @@ class Shaper(nn.Module):
 
         # Batch, Pad, and put into PyTorch format.
         if len(events) > 1:
-            if isinstance(events[1], np.ndarray):
+            if isinstance(events, tuple):
                 events = [events, ]
         xi, ai = self.batcher(events)
         xi = xi.to(self.dev)
@@ -201,9 +201,12 @@ class Shaper(nn.Module):
                 Fs[obs] = F_i.cpu().detach().numpy()
                 dxs[obs] = dx_i.cpu().detach().numpy()
 
+
+            print("Done!")
             return min_losses, min_params, Fs, dxs
 
         else:
+            print("Done!")
             return min_losses, min_params
 
     
@@ -214,7 +217,7 @@ class Shaper(nn.Module):
 
         # Batch, Pad, and put into PyTorch format.
         if len(events) > 1:
-            if isinstance(events[1], np.ndarray):
+            if isinstance(events, tuple):
                 events = [events, ]
 
         # Pairwise Indices
@@ -253,6 +256,65 @@ class Shaper(nn.Module):
             
             losses[i,j] = Loss_xy.cpu().detach().numpy()[k]
             losses[j,i] = losses[i,j]
+            k += 1
+        
+        return losses
+    
+    def pairwise_emds2(self, events1, events2, beta, R, all_pairs = False, epsilon=0.01, scaling=0.9):
+
+        self.dev = self.device
+        self.reset()
+
+        # Batch, Pad, and put into PyTorch format.
+        if len(events1) > 1:
+            if isinstance(events1, tuple):
+                events1 = [events1, ]
+
+        if len(events2) > 1:
+            if isinstance(events2, tuple):
+                events2 = [events2, ]
+
+        # Pairwise Indices
+        n = range(len(events1))
+        m = range(len(events2))
+        i = np.stack(np.meshgrid(n, m), -1).reshape(-1,2)
+        _is, _js = i[:,0], i[:,1]
+
+        def index_list(l, indices):
+            arr = []
+            for index in indices:
+                arr.append(l[index])
+            return arr
+
+        if all_pairs:
+            events_1 = index_list(events1, _is)
+            events_2 = index_list(events2, _js)
+
+
+        xi1, ai1 = self.batcher(events_1)
+        xi1 = xi1.to(self.dev)
+        ai1 = ai1.to(self.dev)
+
+        
+        xi2, ai2 = self.batcher(events_2)
+        xi2 = xi2.to(self.dev)
+        ai2 = ai2.to(self.dev)
+
+        print(xi1.shape, xi2.shape)
+        print(ai1.shape, ai2.shape)
+        
+        batch_size = xi2.shape[0]
+
+        Loss = SamplesLoss("sinkhorn", p=beta, blur=epsilon**(1/beta), scaling=scaling, diameter = R * 2)
+
+        Loss_xy = Loss(ai1, xi1, ai2, xi2) / R**beta
+
+
+        losses = np.zeros((len(n), len(m)))
+        k=0
+        for (i,j) in zip(_is, _js):
+            
+            losses[i,j] = Loss_xy.cpu().detach().numpy()[k]
             k += 1
         
         return losses
@@ -300,6 +362,13 @@ class Shaper(nn.Module):
     # Function to format events of the form [(x, a)] into a padded pytorch tensor of shape (Batch_size, Pad, dim)
 
     def batcher(self, events, batch_size=None):
+
+        # if events is a numpy array of the form (N, pad, 3) where the last dimension is (pt, y, phi)
+        if isinstance(events, np.ndarray):
+                
+            zs = torch.Tensor(events[:, :, 0])
+            points = torch.Tensor(events[:, :, 1:])
+            return nn.utils.rnn.pad_sequence(points, batch_first=True), nn.utils.rnn.pad_sequence(zs, batch_first=True)
 
         if batch_size is None:
 
