@@ -289,6 +289,9 @@ class Shaper(nn.Module):
         if all_pairs:
             events_1 = index_list(events1, _is)
             events_2 = index_list(events2, _js)
+        else:
+            events_1 = events1
+            events_2 = events2
 
 
         xi1, ai1 = self.batcher(events_1)
@@ -309,15 +312,103 @@ class Shaper(nn.Module):
 
         Loss_xy = Loss(ai1, xi1, ai2, xi2) / R**beta
 
-
-        losses = np.zeros((len(n), len(m)))
+        if all_pairs:
+            losses = np.zeros((len(n), len(m)))
+        else:
+            losses = np.zeros((len(n)))
         k=0
-        for (i,j) in zip(_is, _js):
-            
-            losses[i,j] = Loss_xy.cpu().detach().numpy()[k]
-            k += 1
-        
+
+        if all_pairs:
+            for (i,j) in zip(_is, _js):
+                
+                losses[i,j] = Loss_xy.cpu().detach().numpy()[k]
+                k += 1
+        else:
+            for i in range(len(n)):
+                
+                losses[i] = Loss_xy.cpu().detach().numpy()[k]
+                k += 1
+
+
         return losses
+    
+    def pairwise_emds_isometry(self, events1, events2, beta, R, epochs = 100, epsilon=0.01, scaling=0.9, lr=0.01, early_stopping=25, early_stopping_fraction=0.95, verbose=True    ):
+
+        self.dev = self.device
+        self.reset()
+
+        # Batch, Pad, and put into PyTorch format.
+        xi1, ai1 = self.format_events(events1)
+        xi2, ai2 = self.format_events(events2)
+
+        # Indices
+        batch_size = len(events1)
+        n = range(len(events1))
+
+
+        # Step up parameters for isometry so that xi2 can be translated and rotated
+        translation = torch.nn.Parameter(torch.zeros(xi2.shape[0], 2))
+        rotation = torch.nn.Parameter(torch.zeros(xi2.shape[0],))
+        parameters = [translation, rotation]
+
+        def translate_rotate(xi2, translation, rotation):
+            
+            yi2 = torch.clone(xi2)
+
+            # Rotate xi2 by the rotation parameters
+            yi2[:,:,0] = xi2[:,:,0] * torch.cos(rotation[:,None]) - xi2[:,:,1] * torch.sin(rotation[:,None]) 
+            yi2[:,:,1] = xi2[:,:,0] * torch.sin(rotation[:,None]) + xi2[:,:,1] * torch.cos(rotation[:,None])
+            yi2 = xi2 + translation[:,None,:]
+
+            return yi2
+
+        # Training Loop
+        Loss = SamplesLoss("sinkhorn", p=beta, blur=epsilon**(1/beta), scaling=scaling, diameter = R * 2)
+        optimizer = optim.Adam(parameters, lr=lr)
+        losses = np.zeros((len(n),epochs))
+        min_losses = np.ones((len(n),)) * np.inf
+
+        counts = np.zeros((batch_size,), dtype=np.int32)
+        mask = counts < early_stopping
+
+        if verbose:
+            t1 = time()
+
+        for epoch in range(epochs):
+
+            # get translated and rotated xi2
+            xi2_tr = translate_rotate(xi2, translation, rotation)
+
+            # Calculate losses
+            optimizer.zero_grad()
+            Loss_xy = Loss(ai1, xi1, ai2, xi2_tr) / R**beta
+            Loss_xy.sum().backward(retain_graph=True)
+            optimizer.step()
+
+            losses[:,epoch] = Loss_xy.cpu().detach().numpy()
+
+
+
+            if verbose:
+                print("Epoch %d" % epoch, "Mean Loss =", np.mean(losses[:,epoch]), "Elapsed time = %.3fs" % (
+                    time() - t1), "Percentage done = %.3f " % (100 * (batch_size - np.sum(mask))/batch_size))
+
+            # Early Stopping Calculation (TODO: Parallelize)
+            for i in np.array(range(batch_size))[mask]:
+                if losses[i,epoch] < min_losses[i] * (1.0-epsilon):
+                    min_losses[i] = losses[i,epoch]
+                    counts[i] = 0
+                else:
+                    counts[i] += 1
+            mask = counts < early_stopping
+            if np.sum(mask) == 0:
+                break
+
+            if ((batch_size - np.sum(mask))/batch_size) >= early_stopping_fraction:
+                break
+
+        return min_losses
+
     
     
     
@@ -378,6 +469,20 @@ class Shaper(nn.Module):
 
         else:
             raise NotImplementedError("Custom batch sizes not yet implemented")
+
+
+    def format_events(self, events):
+
+        # Batch, Pad, and put into PyTorch format.
+        if len(events) > 1:
+            if isinstance(events, tuple):
+                events = [events, ]
+        
+        xi, ai = self.batcher(events)
+        xi = xi.to(self.device)
+        ai = ai.to(self.device)
+
+        return xi, ai
 
     def reset(self):
         self.observable_batch = None
