@@ -303,8 +303,6 @@ class Shaper(nn.Module):
         xi2 = xi2.to(self.dev)
         ai2 = ai2.to(self.dev)
 
-        print(xi1.shape, xi2.shape)
-        print(ai1.shape, ai2.shape)
         
         batch_size = xi2.shape[0]
 

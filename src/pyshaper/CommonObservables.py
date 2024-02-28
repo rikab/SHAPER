@@ -329,21 +329,21 @@ def buildCommmonObservables(N, beta, R, device):
     for m in range(N):
 
         n = m + 1
-        _nsubjettiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n)}, point_sampler, beta=1, R=R, initializer="kt", plotter=point_plotter)
+        _nsubjettiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n)}, point_sampler, beta=beta, R=R, initializer="kt", plotter=point_plotter)
 
         _nringiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
-                                 ring_sampler, beta=1, R=R, initializer="kt", plotter=ring_plotter)
+                                 ring_sampler, beta=beta, R=R, initializer="kt", plotter=ring_plotter)
         _ndiskiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius": PositiveReals(n, 0)},
-                                 disk_sampler, beta=1, R=R, initializer="kt", plotter=disk_plotter)
+                                 disk_sampler, beta=beta, R=R, initializer="kt", plotter=disk_plotter)
         _nellipsiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n, 0),
-                                    "Angles": Circle(n, R/2)}, ellipse_sampler, beta=1, R=R, initializer="kt", plotter=ellipse_plotter)
+                                    "Angles": Circle(n, R/2)}, ellipse_sampler, beta=beta, R=R, initializer="kt", plotter=ellipse_plotter)
 
         _npoint_ringiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
-                                       point_ring_sampler, beta=1, R=R, initializer="kt", plotter=point_ring_plotter)
+                                       point_ring_sampler, beta=beta, R=R, initializer="kt", plotter=point_ring_plotter)
         _npoint_diskiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius": PositiveReals(n, 0)},
-                                       point_disk_sampler, beta=1, R=R, initializer="kt", plotter=point_disk_plotter)
+                                       point_disk_sampler, beta=beta, R=R, initializer="kt", plotter=point_disk_plotter)
         _npoint_ellipseiness = Observable({"Points": Coordinates2D(n, R), "Weights": Simplex(2*n), "Radius1": PositiveReals(n, 0), "Radius2": PositiveReals(n,
-                                                                                                                                                            0), "Angles": Circle(n, 0)}, point_ellipse_sampler, beta=1, R=R, initializer="kt", plotter=point_ellipse_plotter)
+                                                                                                                                                            0), "Angles": Circle(n, 0)}, point_ellipse_sampler, beta=beta, R=R, initializer="kt", plotter=point_ellipse_plotter)
 
         observables_array.append(_nsubjettiness)
         observables_array.append(_nringiness)
