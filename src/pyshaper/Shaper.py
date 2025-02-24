@@ -345,8 +345,8 @@ class Shaper(nn.Module):
 
 
         # Step up parameters for isometry so that xi2 can be translated and rotated
-        translation = torch.nn.Parameter(torch.zeros(xi2.shape[0], 2))
-        rotation = torch.nn.Parameter(torch.zeros(xi2.shape[0],))
+        translation = torch.nn.Parameter(torch.zeros(xi2.shape[0], 2, device=self.dev))
+        rotation = torch.nn.Parameter(torch.zeros(xi2.shape[0], device=self.dev))
         parameters = [translation, rotation]
 
         def translate_rotate(xi2, translation, rotation):
