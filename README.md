@@ -108,4 +108,3 @@ Based on the work in ["SHAPER: Can You Hear the Shape of a Jet?" (arxiv:2302.122
 
 Bugs, Fixes, Ideas, or Questions? Contact me at rikab@mit.edu
 
-To discuss finer mathematical details (model convergence, optimization guarantees, etc), you may also contact Akshunna S. Dogra at adogra@nyu.edu
